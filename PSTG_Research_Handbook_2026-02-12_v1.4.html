@@ -1,0 +1,2270 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PSTG（Pure Storage）投研手册｜行业入门 + 公司深研 + AI传导机制 + 估值与跟踪（2026-02-11）</title>
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#111826;
+      --card:#0f1623;
+      --text:#e7eefc;
+      --muted:#9db0d0;
+      --line:#22304a;
+      --accent:#7dd3fc;
+      --good:#34d399;
+      --warn:#fbbf24;
+      --bad:#fb7185;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    html,body{background:linear-gradient(180deg,var(--bg),#070a10 60%); color:var(--text); font-family:var(--sans); margin:0;}
+    a{color:var(--accent); text-decoration:none;}
+    a:hover{text-decoration:underline;}
+    .wrap{max-width:1180px; margin:0 auto; padding:28px 18px 80px;}
+    header{padding:18px 0 10px; border-bottom:1px solid var(--line);}
+    .title{font-size:26px; letter-spacing:.2px; margin:0 0 10px;}
+    .subtitle{color:var(--muted); margin:0; line-height:1.55;}
+    .pillbar{display:flex; flex-wrap:wrap; gap:10px; margin:14px 0 6px;}
+    .pill{border:1px solid var(--line); background:rgba(255,255,255,.02); padding:7px 10px; border-radius:999px; font-size:13px; color:var(--muted);}
+    .grid{display:grid; grid-template-columns: 1.25fr .75fr; gap:14px; margin-top:18px;}
+    @media (max-width: 980px){.grid{grid-template-columns:1fr;}}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015)); border:1px solid var(--line); border-radius:14px; padding:14px 14px 12px;}
+    .card h3{margin:0 0 10px; font-size:15px; letter-spacing:.2px;}
+    .kpi{display:grid; grid-template-columns: 1fr 1fr; gap:10px;}
+    @media (max-width: 520px){.kpi{grid-template-columns:1fr;}}
+    .kpi .item{background:rgba(0,0,0,.18); border:1px solid rgba(255,255,255,.05); border-radius:12px; padding:10px;}
+    .kpi .label{color:var(--muted); font-size:12px; margin-bottom:4px;}
+    .kpi .value{font-size:18px; font-weight:700;}
+    .kpi .note{color:var(--muted); font-size:12px; margin-top:4px; line-height:1.35;}
+    .callout{border-left:4px solid var(--accent); padding:10px 12px; background:rgba(125,211,252,.06); border-radius:10px; color:var(--text); line-height:1.6;}
+    .callout b{color:#dbeafe;}
+    .callout.good{border-left-color:var(--good); background:rgba(52,211,153,.07);}
+    .callout.warn{border-left-color:var(--warn); background:rgba(251,191,36,.08);}
+    .callout.bad{border-left-color:var(--bad); background:rgba(251,113,133,.08);}
+    .toc{columns:2; column-gap:24px;}
+    @media (max-width: 780px){.toc{columns:1;}}
+    .toc a{display:block; padding:6px 0; color:var(--muted);}
+    .toc a:hover{color:var(--text);}
+    section{margin-top:22px;}
+    section h2{margin:26px 0 10px; font-size:18px;}
+    section h4{margin:18px 0 8px; font-size:14px; color:#dbeafe;}
+    p{color:#d7e2fb; line-height:1.7; margin:10px 0;}
+    ul{margin:8px 0 12px 20px; color:#d7e2fb; line-height:1.7;}
+    li{margin:6px 0;}
+    table{width:100%; border-collapse:collapse; overflow:hidden; border-radius:12px; border:1px solid var(--line); background:rgba(0,0,0,.12);}
+    th,td{border-bottom:1px solid rgba(255,255,255,.06); padding:10px 10px; vertical-align:top;}
+    th{background:rgba(255,255,255,.04); text-align:left; font-weight:700; color:#eaf2ff; font-size:13px;}
+    td{color:#d7e2fb; font-size:13px;}
+    tr:last-child td{border-bottom:none;}
+    .mono{font-family:var(--mono);}
+    .tag{display:inline-block; border:1px solid rgba(255,255,255,.12); color:var(--muted); padding:2px 8px; border-radius:999px; font-size:12px; margin-left:6px;}
+    .num{white-space:nowrap;}
+    .small{font-size:12px; color:var(--muted);}
+    .divider{height:1px; background:var(--line); margin:16px 0;}
+    details{border:1px solid var(--line); border-radius:12px; padding:10px 12px; background:rgba(255,255,255,.02); margin:10px 0;}
+    details summary{cursor:pointer; font-weight:700; color:#eaf2ff;}
+    .footnotes{font-size:12px; color:var(--muted); line-height:1.65;}
+    .footnotes li{margin:8px 0;}
+    .badge{display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; font-weight:700;}
+    .b-good{background:rgba(52,211,153,.16); color:#b7f7de; border:1px solid rgba(52,211,153,.35);}
+    .b-warn{background:rgba(251,191,36,.14); color:#fde68a; border:1px solid rgba(251,191,36,.35);}
+    .b-bad{background:rgba(251,113,133,.14); color:#fecdd3; border:1px solid rgba(251,113,133,.35);}
+    .b-info{background:rgba(125,211,252,.14); color:#bae6fd; border:1px solid rgba(125,211,252,.35);}
+    .svgwrap{background:rgba(0,0,0,.18); border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:12px; overflow:auto;}
+    .two-col{display:grid; grid-template-columns: 1fr 1fr; gap:12px;}
+    @media (max-width: 980px){.two-col{grid-template-columns:1fr;}}
+    .hr{height:1px; background:rgba(255,255,255,.06); margin:10px 0;}
+    .muted{color:var(--muted);}
+    code{font-family:var(--mono); font-size:12px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.06); padding:2px 6px; border-radius:8px; color:#eaf2ff;}
+    
+    .input{
+      width:100%;
+      box-sizing:border-box;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:10px;
+      padding:6px 8px;
+      color:var(--text);
+      font-family:var(--mono);
+      font-size:12px;
+      outline:none;
+    }
+    .input:focus{border-color:rgba(125,211,252,.65); box-shadow:0 0 0 3px rgba(125,211,252,.15);}
+    .input.small{padding:5px 7px; font-size:12px;}
+    .calc-out{font-family:var(--mono); font-size:12px; color:#eaf2ff;}
+    .row-input{background:rgba(125,211,252,.05);}
+    .sticky-note{background:rgba(251,191,36,.08); border:1px solid rgba(251,191,36,.35); border-radius:12px; padding:10px 12px; color:#fde68a;}
+    .mini{font-size:12px;color:var(--muted); line-height:1.6;}
+
+    .print-note{display:none;}
+    @media print{
+      :root{--bg:#fff; --text:#111827; --muted:#4b5563; --line:#e5e7eb; --panel:#fff; --card:#fff;}
+      html,body{background:#fff; color:#111827;}
+      a{color:#111827; text-decoration:underline;}
+      .wrap{max-width:100%; padding:0 12px;}
+      .card, details, table{break-inside:avoid;}
+      .pill{border-color:#e5e7eb; background:#fff;}
+      .print-note{display:block; font-size:12px; color:#6b7280;}
+    }
+  </style>
+</head>
+
+<body>
+<div class="wrap">
+  <header>
+    <h1 class="title">PSTG（Pure Storage）投研手册（HTML版）</h1>
+    <p class="subtitle">
+      用途：把<strong>行业逻辑</strong>、<strong>公司事实</strong>、<strong>AI/Agent/token 传导机制</strong>、<strong>财务/估值框架</strong>与<strong>跟踪/尽调清单</strong>做成可复用的投研手册。<br/>
+      <span class="print-note">打印提示：此页面支持打印（浏览器打印/导出PDF），页末附来源链接（可抽查）。</span>
+    </p>
+    <div class="pillbar">
+      <span class="pill">公司：Pure Storage, Inc.（NYSE: PSTG）</span>
+      <span class="pill">版本：v1.4（新增：2020-2026「5倍+」之路复盘：大涨/大跌催化 × 叙事重估 × 验证点）</span>
+      <span class="pill">日期：2026-02-12（America/Los_Angeles）</span>
+      <span class="pill">关键时点：FY2026 Q4 & 全年电话会 2026-02-25 14:00 PT</span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <h3 id="toc">目录（建议按顺序读；作为手册可随用随查）</h3>
+      <div class="toc">
+        <a href="#sec-0">0. 使用指南：怎么用这份手册</a>
+        <a href="#sec-1">1. 研究结论概要：一句话 + 三条主线</a>
+        <a href="#sec-2">2. 行业入门：存储是什么、为什么全闪存、为什么像平台</a>
+        <a href="#sec-3">3. 公司做什么：产品矩阵、平台、技术护城河</a>
+        <a href="#sec-4">4. 怎么赚钱：收入结构、Evergreen 订阅飞轮、hyperscaler 业务</a>
+        <a href="#sec-5">5. AI训练/推理/Agent：token/工具调用增长如何传导到存储与PSTG收入（大信息图）</a>
+        <a href="#sec-6">6. 竞争格局：四类对手、预算争夺、谁在受益</a>
+        <a href="#sec-6-3">6.3 对照矩阵：Dell/NetApp/HPE/WEKA/VAST/云厂商（预算争夺地图）</a>
+        <a href="#sec-7">7. 财务质量：增速、毛利、现金流、SBC/稀释</a>
+        <a href="#sec-7-4">7.4 成本与供给：NAND涨价、存货、顺价能力与毛利验证框架</a>
+        <a href="#sec-8">8. 估值框架：P/S、Forward P/E、情景与敏感性</a>
+        <a href="#sec-8-4">8.4 财务建模模板：收入拆分 + 利润/现金流 + 稀释/回购 + 估值输出（可编辑）</a>
+        <a href="#sec-9">9. 跟踪看板：每季必看指标与信号</a>
+        <a href="#sec-9-3">9.3 涨价周期跟踪：供给—定价—客户行为三条线</a>
+        <a href="#sec-9-4">9.4 财报解读模板：如何验证“涨价→顺价”与 FY27 指引</a>
+        <a href="#sec-10">10. 尽调清单：管理层/渠道/客户要问的问题</a>
+        <a href="#sec-10-4">10.4 涨价/供给紧尽调模块：把“顺价能力”问到可验证</a>
+        <a href="#sec-11">11. 附录：术语表 + 计算口径 + 来源</a>
+        <a href="#sec-12">12. 2020至今「5倍+」之路复盘：催化与股价反应</a>
+      </div>
+      <div class="divider"></div>
+      <div class="callout">
+        <b>一句话定位：</b>Pure Storage 用“100% 全闪存 + 统一操作系统/管理平面 + 订阅化持续升级（Evergreen）”把企业存储从一次性硬件采购，变成更可预测、更少运维、可持续扩容的“数据平台”。
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>关键事实速览（尽量使用公司/监管披露）</h3>
+      <div class="kpi">
+        <div class="item">
+          <div class="label">FY2026 Q3（截至 2025-11-02）</div>
+          <div class="value">营收 $964.5M <span class="tag">YoY +16%</span></div>
+          <div class="note">产品 $534.8M；订阅服务 $429.7M（约45%）<sup><a href="#fn1">[1]</a></sup></div>
+        </div>
+        <div class="item">
+          <div class="label">订阅指标</div>
+          <div class="value">ARR $1.8B <span class="tag">YoY +17%</span></div>
+          <div class="note">RPO $2.9B（+24%）；Evergreen//One TCV Q3 $120M（+25%）<sup><a href="#fn2">[2]</a></sup></div>
+        </div>
+        <div class="item">
+          <div class="label">盈利能力（Q3）</div>
+          <div class="value">Non-GAAP GM 74.1% / Op Margin 20.3%</div>
+          <div class="note">GAAP Op Margin 5.6%（差异主要来自股权激励等）<sup><a href="#fn1">[1]</a></sup></div>
+        </div>
+        <div class="item">
+          <div class="label">现金与回购（Q3）</div>
+          <div class="value">现金及投资 $1.5B</div>
+          <div class="note">经营现金流 $116M；FCF $52.6M；回购约 $53M<sup><a href="#fn1">[1]</a></sup></div>
+        </div>
+        <div class="item">
+          <div class="label">客户覆盖（管理层口径）</div>
+          <div class="value">Fortune 500 渗透率 63%</div>
+          <div class="note">Q3 新增客户 258 家；客户基础持续扩大<sup><a href="#fn2">[2]</a></sup></div>
+        </div>
+        <div class="item">
+          <div class="label">FY2026 指引（Q3后上调）</div>
+          <div class="value">营收 $3.63–$3.64B</div>
+          <div class="note">Q4营收 $1.02–$1.04B；FY26 Non-GAAP Op Income $629–$639M<sup><a href="#fn1">[1]</a></sup></div>
+        </div>
+        <div class="item">
+          <div class="label">股价/市值快照（2026-02-10）</div>
+          <div class="value">$73.64 / $24.31B</div>
+          <div class="note">用于估值粗算与对标；非投顾建议<sup><a href="#fn3">[3]</a></sup></div>
+        </div>
+        <div class="item">
+          <div class="label">分析师目标价聚合（样例）</div>
+          <div class="value">均值 $95.26</div>
+          <div class="note">MarketBeat：19 位分析师，高 $120 / 低 $60<sup><a href="#fn4">[4]</a></sup></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="callout warn">
+        <b>读数提醒：</b>存储公司常用 <span class="mono">Non-GAAP</span> 呈现经营质量；但研究必须同时盯：①现金流；②SBC（股权激励）与稀释；③订阅指标（ARR/RPO）是否持续强于营收。
+      </div>
+    </div>
+  </div>
+
+  <!-- 0 -->
+  <section id="sec-0">
+    <h2>0) 使用指南：怎么用这份手册</h2>
+    <div class="two-col">
+      <div class="card">
+        <h3>0.1 读法（按研究流程）</h3>
+        <ol class="muted" style="margin:8px 0 12px 18px; line-height:1.7;">
+          <li><b>先看 1–2 章</b>：弄懂行业与“为什么全闪存/订阅会赢”。</li>
+          <li><b>再看 3–4 章</b>：弄懂公司“卖什么/凭什么/怎么收钱”。</li>
+          <li><b>重点读 5 章</b>：把 AI/Agent/token 的增长翻译成存储需求与收入驱动（核心传导）。</li>
+          <li><b>最后读 7–10 章</b>：财务质量、估值框架、跟踪指标、尽调清单（用于持续跟踪）。</li>
+        </ol>
+        <p class="small">提示：在每个章节末尾，我都尽量给出“可验证的指标/提问”，避免停留在叙事。</p>
+      </div>
+      <div class="card">
+        <h3>0.2 这份手册“不是”什么</h3>
+        <ul class="muted">
+          <li>不是投委会演讲稿：不追求短、而追求可复用与可追溯。</li>
+          <li>不是投资建议：只提供研究框架、事实与可验证假设。</li>
+          <li>不是单一来源复述：尽量以公司/SEC/IDC/公开统计为锚点，并在页末列出来源链接供抽查。</li>
+        </ul>
+        <div class="callout">
+          <b>本手册的“研究假设”核心：</b><br/>
+          AI 进入企业生产（推理、RAG、Agent）会带来“更多数据访问 + 更长留存 + 更高SLA”，从而推动企业在热数据层采购更高规格存储；Pure Storage 试图在这块预算中成为“平台型赢家”。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 1 -->
+  <section id="sec-1">
+    <h2>1) 研究结论概要：一句话 + 三条主线</h2>
+
+    <div class="callout good">
+      <b>一句话结论：</b><br/>
+      Pure Storage 的核心机会不是“存储大盘变大”，而是：在“全闪存替代 + 订阅化消费模式 + AI数据管道升级”的叠加期，用技术与商业模式把存储做成更像软件平台，从而获得更高估值与更强客户粘性。
+    </div>
+
+    <h4>三条主线（用来组织后面的所有细节）</h4>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:18%">主线</th>
+          <th style="width:52%">关键论证点（我们要证明什么）</th>
+          <th style="width:30%">可验证信号（每季要看什么）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>主线A：全闪存替代</b></td>
+          <td>HDD/混合阵列在 AI/实时业务下越来越不够用；AFA 的结构性增长可持续。</td>
+          <td>IDC AFA 增长是否持续；Pure 产品收入与客户扩容是否强于行业<sup><a href="#fn7">[7]</a></sup></td>
+        </tr>
+        <tr>
+          <td><b>主线B：订阅化/平台化</b></td>
+          <td>Evergreen + 统一软件栈把一次性“卖盒子”变成长期“收订阅/升级/服务”。</td>
+          <td>ARR/RPO 增速持续领先营收；订阅占比提升；客户新增稳定<sup><a href="#fn1">[1]</a></sup></td>
+        </tr>
+        <tr>
+          <td><b>主线C：AI 工作负载</b></td>
+          <td>训练/推理/Agent 带来吞吐、并发、治理与留存需求；存储成为“数据管道瓶颈”。</td>
+          <td>AI相关产品（FlashBlade//EXA 等）采用度；hyperscaler 经济模型更清晰；指引/订单反映 AI 扩张<sup><a href="#fn2">[2]</a></sup><sup><a href="#fn9">[9]</a></sup></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>手册式提醒：把“故事”变成“可验证假设”</summary>
+      <ul>
+        <li>故事：AI 很火 → 存储会受益。</li>
+        <li>假设：AI 的 token/工具调用增长，会让企业“热数据层”更需要低延迟/高吞吐存储。</li>
+        <li>验证：ARR/RPO 是否持续走强？客户是否扩容？产品毛利/交付是否健康？hyperscaler 是否从“一次性大单”变成可持续模式？</li>
+      </ul>
+    </details>
+  </section>
+
+  <!-- 2 -->
+  <section id="sec-2">
+    <h2>2) 行业入门：存储是什么、为什么全闪存、为什么像平台</h2>
+
+    <h4>2.1 存储在企业IT里的位置：数据“放/取”的底座</h4>
+    <p>
+      企业 IT 三件事：算（CPU/GPU）、传（网络）、放/取（存储）。AI 把“取数据”的重要性放大：GPU 很贵，数据读不出来或读得不稳定，就会让 GPU 空转，直接烧钱。
+    </p>
+
+    <h4>2.2 三种常见形态：块/文件/对象（按场景记）</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>形态</th>
+          <th>类比</th>
+          <th>典型应用</th>
+          <th>AI相关性（你关心的点）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>块存储 (Block)</b></td>
+          <td>“磁盘分区/块设备”</td>
+          <td>数据库、虚拟化、关键业务系统</td>
+          <td>推理服务在线数据库；训练 checkpoint 的稳定落盘</td>
+        </tr>
+        <tr>
+          <td><b>文件存储 (File)</b></td>
+          <td>“共享文件夹/网盘目录”</td>
+          <td>工程文件、媒体资产、共享数据集</td>
+          <td>训练数据集、RAG 文档库、日志文件</td>
+        </tr>
+        <tr>
+          <td><b>对象存储 (Object)</b></td>
+          <td>“网盘 + API（S3）”</td>
+          <td>数据湖、备份归档、非结构化数据</td>
+          <td>大规模语料/图片/视频；向量库底层持久化</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>2.3 为什么“全闪存”是趋势：速度/能耗/运维（TCO）</h4>
+    <p>
+      HDD 便宜但慢；混合阵列在 AI/实时业务下也越来越不够用。IDC 指出：2025 Q3 外部企业存储系统中，<b>全闪存阵列同比增长 17.6%</b>，而混合阵列和 HDD 阵列同比下滑。<sup><a href="#fn7">[7]</a></sup><sup><a href="#fn8">[8]</a></sup>
+      这意味着行业在发生结构迁移：从“买更便宜的容量”转向“买更可预测的性能与更低运维成本”。
+    </p>
+
+    <h4>2.4 为什么存储像平台：迁移成本高 → 客户粘性强 → 订阅/服务化</h4>
+    <ul>
+      <li><b>迁移成本高</b>：停机风险、数据一致性、合规审计、业务连续性。</li>
+      <li><b>粘性强</b>：装进关键业务后，客户更愿意在同平台扩容/升级。</li>
+      <li><b>订阅化</b>：软件功能、支持、升级、SLA 变成持续收入。</li>
+    </ul>
+  </section>
+
+  <!-- 3 -->
+  <section id="sec-3">
+    <h2>3) 公司做什么：产品矩阵、平台、技术护城河</h2>
+
+    <h4>3.1 产品矩阵（按“客户用它干什么”来分）</h4>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:22%">产品/平台</th>
+          <th style="width:28%">主要解决什么问题</th>
+          <th style="width:30%">典型场景</th>
+          <th style="width:20%">与AI的关系</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>FlashArray</b><br/><span class="small">块存储阵列</span></td>
+          <td>关键业务的稳定低延迟存取</td>
+          <td>数据库、虚拟化、核心交易系统、生产推理在线层</td>
+          <td>推理在线数据；训练 checkpoint 更偏此类（稳定写入、低抖动）</td>
+        </tr>
+        <tr>
+          <td><b>FlashBlade</b><br/><span class="small">文件/对象，横向扩展</span></td>
+          <td>海量文件/对象的高吞吐并发读取</td>
+          <td>数据湖、AI训练数据集、大数据分析、日志</td>
+          <td>“喂数据给GPU”的关键层</td>
+        </tr>
+        <tr>
+          <td><b>FlashBlade//EXA</b><br/><span class="small">AI/HPC 高吞吐版本</span></td>
+          <td>突破 AI 工厂的数据管道瓶颈</td>
+          <td>万卡/大规模 GPU 集群</td>
+          <td>公司宣称在测试中可实现“单命名空间&gt;10TB/s读性能”<sup><a href="#fn9">[9]</a></sup></td>
+        </tr>
+        <tr>
+          <td><b>Portworx</b><br/><span class="small">Kubernetes数据平台</span></td>
+          <td>容器化应用的数据持久化/迁移/保护</td>
+          <td>云原生应用、AI 推理服务（K8s）</td>
+          <td>Agent/推理服务常跑在 K8s；Portworx 管“容器的数据底座”<sup><a href="#fn2">[2]</a></sup></td>
+        </tr>
+        <tr>
+          <td><b>Pure1 / Pure Fusion / Enterprise Data Cloud</b><br/><span class="small">管理/控制平面</span></td>
+          <td>把分散存储变成可编排“数据云”</td>
+          <td>平台工程、运维自动化</td>
+          <td>让存储资源“可被代码/Agent 调用”，降低运维成本<sup><a href="#fn1">[1]</a></sup><sup><a href="#fn10">[10]</a></sup></td>
+        </tr>
+        <tr>
+          <td><b>云侧产品（CBS / Azure Native 等）</b></td>
+          <td>把 Pure 体验延伸到公有云</td>
+          <td>混合云客户、统一管理</td>
+          <td>AI 工作负载跨云/本地；云侧产品用于让数据与算力更灵活匹配<sup><a href="#fn1">[1]</a></sup></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>3.2 技术护城河之一：DirectFlash（DFM）</h4>
+    <p>
+      Pure 的核心叙事之一是 <b>DirectFlash Modules（DFM）</b>：自主设计闪存模块，并在系统层面管理原始 NAND，而不是使用通用 SSD。
+      公司披露 DFMs 相比最接近竞品可实现<strong>2–3倍存储密度</strong>与<strong>每TB少耗 39%–54% 的电</strong>（厂商口径，方向性重要，幅度需尽调验证）。<sup><a href="#fn11">[11]</a></sup>
+    </p>
+
+    <h4>3.3 技术护城河之二：统一软件栈 + 统一管理</h4>
+    <p>
+      存储系统的“软件价值”体现在：数据服务（快照、复制、加密、压缩/去重、故障自愈）、运维自动化与可观测性。Pure 将这些尽量纳入统一操作系统与管理平台，试图把“存储运维”从专家工种变成平台能力。
+    </p>
+
+    <h4>3.4 与 Agent 直接相关：AI Copilot + MCP</h4>
+    <p>
+      你提到 Agent/工具调用趋势。Pure 在 2025-09 的发布中提到 <b>Pure Storage AI Copilot</b> 可作为 <b>MCP server</b> 及 client，与内部数据（性能、订阅、安全等）和外部工具集成。<sup><a href="#fn10">[10]</a></sup>
+      这说明公司也在押注：未来“存储资源”会被平台工程/Agent 编排，而不是靠人工工单。
+    </p>
+  </section>
+
+  <!-- 4 -->
+  <section id="sec-4">
+    <h2>4) 怎么赚钱：收入结构、Evergreen 订阅飞轮、hyperscaler 业务</h2>
+
+    <h4>4.1 两个钱袋子：产品收入 + 订阅服务收入</h4>
+    <p>
+      FY2026 Q3 总营收 $964.5M，其中产品 $534.8M、订阅服务 $429.7M。<sup><a href="#fn1">[1]</a></sup>
+      更关键的是：管理层在准备稿中明确，产品收入里包含 hyperscale shipments 的 <b>royalties</b>（类似授权/版税），以及 Portworx 以期限许可方式销售时的一部分软件收入。<sup><a href="#fn2">[2]</a></sup>
+      因此“产品”不再等同于纯硬件盒子。
+    </p>
+
+    <h4>4.2 Evergreen 的本质：把“换代迁移痛点”变成长期续费与扩容</h4>
+    <div class="svgwrap">
+      <svg width="1120" height="250" viewBox="0 0 1120 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Evergreen订阅飞轮示意">
+        <defs>
+          <style>
+            .bx{fill:rgba(255,255,255,.04);stroke:#22304a;stroke-width:1.2;rx:14;ry:14}
+            .t{fill:#e7eefc;font-family:ui-sans-serif,system-ui; font-size:15px}
+            .s{fill:#9db0d0;font-family:ui-sans-serif,system-ui; font-size:12px}
+            .ar{stroke:#7dd3fc;stroke-width:2.4;fill:none;marker-end:url(#m)}
+          </style>
+          <marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#7dd3fc"/>
+          </marker>
+        </defs>
+
+        <rect class="bx" x="22" y="36" width="255" height="175"/>
+        <text class="t" x="45" y="72">1) 试点/首购</text>
+        <text class="s" x="45" y="98">解决：性能、稳定性、运维痛点</text>
+        <text class="s" x="45" y="120">常见：某业务线、某数据中心</text>
+
+        <rect class="bx" x="305" y="36" width="255" height="175"/>
+        <text class="t" x="328" y="72">2) 运行稳定 → 扩容</text>
+        <text class="s" x="328" y="98">数据增长、并发增长、AI工作负载</text>
+        <text class="s" x="328" y="120">扩容更快、停机更少、运维更少</text>
+
+        <rect class="bx" x="588" y="36" width="255" height="175"/>
+        <text class="t" x="611" y="72">3) 订阅续费/升级</text>
+        <text class="s" x="611" y="98">持续升级、统一管理、SLA</text>
+        <text class="s" x="611" y="120">把“换代迁移”成本降到最低</text>
+
+        <rect class="bx" x="871" y="36" width="227" height="175"/>
+        <text class="t" x="894" y="72">4) 平台锁定效应</text>
+        <text class="s" x="894" y="98">数据重力 + 合规审计 + 运维体系</text>
+        <text class="s" x="894" y="120">迁移成本上升，复购更自然</text>
+
+        <path class="ar" d="M 277 124 L 305 124"/>
+        <path class="ar" d="M 560 124 L 588 124"/>
+        <path class="ar" d="M 843 124 L 871 124"/>
+      </svg>
+    </div>
+
+    <h4>4.3 hyperscaler 业务：高弹性机会 + 更高不确定性</h4>
+    <p>
+      管理层披露：Q3 期间 hyperscaler 出货已超过全年 1–2EB 的目标，并预计 Q4 继续出货；同时也表示未来将不再提供出货量数字，并会在 Q4 讨论 FY27 展望与经济模型。<sup><a href="#fn2">[2]</a></sup>
+      研究要点：这可能是“更轻资产、更软件化、更高利润”曲线，但也伴随集中度与波动性（客户议价力极强）。
+    </p>
+
+    <details>
+      <summary>把 hyperscaler 业务拆成 4 个研究问题（用于建模）</summary>
+      <ul>
+        <li><b>收入确认</b>：royalty/许可 vs 设备出货？与传统产品收入的节奏差异？</li>
+        <li><b>毛利结构</b>：是否显著高于传统硬件？（决定估值溢价能否扩张）</li>
+        <li><b>波动性</b>：单客户的部署节奏/资本开支变化会带来多大波动？</li>
+        <li><b>可复制性</b>：能否新增第二个、第三个 hyperscaler？否则故事可能退化为一次性大单。</li>
+      </ul>
+    </details>
+  </section>
+
+  <!-- 5 -->
+  <section id="sec-5">
+    <h2>5) AI训练/推理/Agent：token/工具调用增长如何传导到存储与 PSTG 收入（大信息图 + 可落地指标）</h2>
+
+    <div class="callout">
+      <b>先定性：</b>Pure 不会“按 token 收费”。token/工具调用增长对 Pure 的影响是<strong>间接的</strong>：<br/>
+      token/请求↑ → 检索/读写/日志↑ → 对性能、容量、治理的要求↑ → 企业升级/扩容存储 → Pure 的产品/订阅/许可收入↑。
+    </div>
+
+    <h4>5.1 大信息图：从 AI 工作负载到 PSTG 收入的传导链路</h4>
+    <div class="svgwrap" aria-label="AI到存储到PSTG收入传导大图（SVG可缩放）">
+      <svg width="1400" height="860" viewBox="0 0 1400 860" xmlns="http://www.w3.org/2000/svg" role="img">
+        <defs>
+          <style>
+            .box{fill:rgba(255,255,255,.035);stroke:#22304a;stroke-width:1.2;rx:16;ry:16}
+            .box2{fill:rgba(255,255,255,.025);stroke:#22304a;stroke-width:1.0;rx:14;ry:14}
+            .hdr{fill:#eaf2ff;font-family:ui-sans-serif,system-ui; font-weight:700; font-size:15px}
+            .txt{fill:#d7e2fb;font-family:ui-sans-serif,system-ui; font-size:12.5px}
+            .mut{fill:#9db0d0;font-family:ui-sans-serif,system-ui; font-size:12px}
+            .k{fill:#bae6fd;font-family:ui-sans-serif,system-ui; font-size:12px; font-weight:700}
+            .ar{stroke:#7dd3fc;stroke-width:2.2;fill:none;marker-end:url(#m)}
+            .ar2{stroke:#34d399;stroke-width:2.2;fill:none;marker-end:url(#m2)}
+            .ar3{stroke:#fbbf24;stroke-width:2.2;fill:none;marker-end:url(#m3)}
+          </style>
+          <marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#7dd3fc"/>
+          </marker>
+          <marker id="m2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#34d399"/>
+          </marker>
+          <marker id="m3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#fbbf24"/>
+          </marker>
+        </defs>
+
+        <!-- Top banner -->
+        <rect class="box" x="28" y="22" width="1344" height="76"/>
+        <text class="hdr" x="52" y="52">驱动变量：模型规模与使用强度</text>
+        <text class="txt" x="52" y="76">token/请求量 ↑ ｜上下文变长 ↑ ｜多模态（图像/视频） ↑ ｜Agent 工具调用次数 ↑  →  数据访问频率与留存规模被放大</text>
+        <text class="mut" x="52" y="94">注：不是“token → PSTG 直接收费”，而是通过数据访问/留存与SLA传导到存储采购与订阅续费。</text>
+
+        <!-- Phase boxes -->
+        <rect class="box" x="28" y="120" width="424" height="240"/>
+        <text class="hdr" x="52" y="152">A. 训练 Training</text>
+        <text class="k" x="52" y="178">发生什么？</text>
+        <text class="txt" x="52" y="202">• 读海量训练数据集（文件/对象）</text>
+        <text class="txt" x="52" y="224">• 预处理/特征工程反复读写</text>
+        <text class="txt" x="52" y="246">• 周期性写 Checkpoint/权重</text>
+        <text class="k" x="52" y="274">存储瓶颈在哪里？</text>
+        <text class="txt" x="52" y="298">• 吞吐不足 → GPU “饿着等”</text>
+        <text class="txt" x="52" y="320">• 抖动/失败 → 训练回滚、成本暴增</text>
+
+        <rect class="box" x="488" y="120" width="424" height="240"/>
+        <text class="hdr" x="512" y="152">B. 推理 Inference（线上系统）</text>
+        <text class="k" x="512" y="178">发生什么？</text>
+        <text class="txt" x="512" y="202">• 模型加载与多副本部署</text>
+        <text class="txt" x="512" y="224">• RAG：检索文档库/向量库</text>
+        <text class="txt" x="512" y="246">• 记录全链路日志/审计数据</text>
+        <text class="k" x="512" y="274">token 增长怎么放大？</text>
+        <text class="txt" x="512" y="298">• 请求↑ → 检索↑ → 小IO并发↑</text>
+        <text class="txt" x="512" y="320">• 合规留存↑ → 容量长期扩张</text>
+
+        <rect class="box" x="948" y="120" width="424" height="240"/>
+        <text class="hdr" x="972" y="152">C. Agent（工具调用/工作流）</text>
+        <text class="k" x="972" y="178">发生什么？</text>
+        <text class="txt" x="972" y="202">• 一次请求=多步工作流（查库/拉文件/调API）</text>
+        <text class="txt" x="972" y="224">• 写中间状态/回写结果/版本记录</text>
+        <text class="txt" x="972" y="246">• 全链路可回放/可追溯</text>
+        <text class="k" x="972" y="274">放大效应</text>
+        <text class="txt" x="972" y="298">• IO交互次数常比 token 增长更快</text>
+        <text class="txt" x="972" y="320">• 数据治理/权限/审计从可选变刚需</text>
+
+        <!-- Requirements layer -->
+        <rect class="box2" x="28" y="392" width="1344" height="190"/>
+        <text class="hdr" x="52" y="422">对“数据底座”的四类刚性需求（AI规模化后会越来越硬）</text>
+
+        <rect class="box" x="52" y="444" width="310" height="120"/>
+        <text class="hdr" x="74" y="474">1) 容量 Capacity</text>
+        <text class="txt" x="74" y="498">• 语料/向量/日志/审计留存变大</text>
+        <text class="txt" x="74" y="520">• 留存周期变长（合规/复盘/评估）</text>
+
+        <rect class="box" x="386" y="444" width="310" height="120"/>
+        <text class="hdr" x="408" y="474">2) 吞吐/并发 Throughput</text>
+        <text class="txt" x="408" y="498">• 训练“喂数据”看 GB/s / TB/s</text>
+        <text class="txt" x="408" y="520">• 推理/RAG 看并发与抖动（p99）</text>
+
+        <rect class="box" x="720" y="444" width="310" height="120"/>
+        <text class="hdr" x="742" y="474">3) SLA/可靠性 Reliability</text>
+        <text class="txt" x="742" y="498">• 生产AI不能频繁降级/停机</text>
+        <text class="txt" x="742" y="520">• Checkpoint/恢复决定成本上限</text>
+
+        <rect class="box" x="1054" y="444" width="290" height="120"/>
+        <text class="hdr" x="1076" y="474">4) 合规/治理 Governance</text>
+        <text class="txt" x="1076" y="498">• 审计、权限隔离、不可变快照</text>
+        <text class="txt" x="1076" y="520">• 可追溯/可回放成为企业刚需</text>
+
+        <!-- PSTG mapping layer -->
+        <rect class="box2" x="28" y="608" width="1344" height="155"/>
+        <text class="hdr" x="52" y="638">PSTG 的产品/平台映射（用来解释“为什么这条链路可能落到它身上”）</text>
+
+        <rect class="box" x="52" y="660" width="260" height="88"/>
+        <text class="hdr" x="74" y="688">FlashBlade / //EXA</text>
+        <text class="txt" x="74" y="712">训练数据集、并行读取</text>
+        <text class="txt" x="74" y="734">高吞吐、横向扩展</text>
+
+        <rect class="box" x="330" y="660" width="240" height="88"/>
+        <text class="hdr" x="352" y="688">FlashArray</text>
+        <text class="txt" x="352" y="712">在线数据库、checkpoint</text>
+        <text class="txt" x="352" y="734">低延迟、稳定写入</text>
+
+        <rect class="box" x="588" y="660" width="250" height="88"/>
+        <text class="hdr" x="610" y="688">Portworx（K8s）</text>
+        <text class="txt" x="610" y="712">推理/Agent 的容器数据</text>
+        <text class="txt" x="610" y="734">迁移/保护/持久化</text>
+
+        <rect class="box" x="856" y="660" width="250" height="88"/>
+        <text class="hdr" x="878" y="688">Pure1 / Fusion</text>
+        <text class="txt" x="878" y="712">统一管理、自动化编排</text>
+        <text class="txt" x="878" y="734">平台工程/AI运维</text>
+
+        <rect class="box" x="1124" y="660" width="220" height="88"/>
+        <text class="hdr" x="1146" y="688">Evergreen / STaaS</text>
+        <text class="txt" x="1146" y="712">订阅续费、持续升级</text>
+        <text class="txt" x="1146" y="734">SLA & 车队管理</text>
+
+        <!-- Revenue layer -->
+        <rect class="box2" x="28" y="786" width="1344" height="56"/>
+        <text class="hdr" x="52" y="818">收入落点（简化）：产品收入（阵列/系统 + hyperscale royalties/许可） + 订阅服务收入（支持/软件/云/Portworx/ STaaS） → ARR/RPO 提升</text>
+
+        <!-- Arrows -->
+        <path class="ar" d="M 240 362 L 240 392"/>
+        <path class="ar" d="M 700 362 L 700 392"/>
+        <path class="ar" d="M 1160 362 L 1160 392"/>
+
+        <path class="ar2" d="M 240 582 L 182 660"/>
+        <path class="ar2" d="M 700 582 L 450 660"/>
+        <path class="ar2" d="M 1160 582 L 713 660"/>
+        <path class="ar2" d="M 1160 582 L 981 660"/>
+        <path class="ar2" d="M 1160 582 L 1234 660"/>
+
+        <path class="ar3" d="M 713 748 L 713 786"/>
+        <path class="ar3" d="M 1234 748 L 1234 786"/>
+      </svg>
+      <p class="small">阅读方法：从上到下看。最上面是“token/请求/工具调用”这类驱动；中间是训练/推理/Agent 的数据动作；再往下是存储四大刚需；最后映射到 PSTG 产品与收入落点。</p>
+    </div>
+
+    <h4>5.2 把大图落到“可观察的经营指标”</h4>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:22%">传导环节</th>
+          <th style="width:48%">你在系统里会看到什么（企业侧现实）</th>
+          <th style="width:30%">在 PSTG 财务/指标里可能看到什么</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>token/请求增长</b></td>
+          <td>并发提高、p99 延迟更敏感；日志/审计留存变大</td>
+          <td>订阅服务收入与 ARR 增速维持；RPO 增速领先营收<sup><a href="#fn1">[1]</a></sup></td>
+        </tr>
+        <tr>
+          <td><b>RAG/向量检索普及</b></td>
+          <td>“小IO很多”的访问模式，元数据/索引压力上升</td>
+          <td>客户扩容 FlashArray/FlashBlade；更多平台化管理诉求（Pure1/Fusion）</td>
+        </tr>
+        <tr>
+          <td><b>Agent 工具调用暴增</b></td>
+          <td>工作流产生大量中间结果、回写、版本与审计链路</td>
+          <td>更强治理/留存 → 容量长期扩张 → 续费与扩容更稳（ARR/RPO）</td>
+        </tr>
+        <tr>
+          <td><b>AI从试点到生产</b></td>
+          <td>SLA/可靠性要求上升，“凑合的通用存储”不够用</td>
+          <td>STaaS（Evergreen//One）TCV 增长；经营利润改善但可能被再投资部分抵消<sup><a href="#fn2">[2]</a></sup></td>
+        </tr>
+        <tr>
+          <td><b>超大规模客户落地</b></td>
+          <td>PB/EB级数据管道，强调能效与密度</td>
+          <td>产品收入中出现 royalties/许可；毛利结构可能改善，但波动性上升<sup><a href="#fn2">[2]</a></sup></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>常见误区校正：为什么“云对象存储（S3）”不是训练/推理的万能解？</summary>
+      <p>
+        S3/Blob 更像“便宜的大仓库”，适合冷数据归档与备份；训练/推理更看重低延迟与稳定吞吐。现实架构往往是冷热分层：热数据/在线层在高性能存储，冷数据在云对象存储。
+        威胁在于“云优先”会拿走一部分预算；机会在于 AI 热数据层会变得更重要、更贵。
+      </p>
+    </details>
+  </section>
+
+  <!-- 6 -->
+  <section id="sec-6">
+    <h2>6) 竞争格局：四类对手、预算争夺、谁在受益</h2>
+
+    <h4>6.1 结构分化：AFA 增长，混合/HDD 下滑</h4>
+    <p>
+      IDC 的市场摘要显示：2025 Q3 外部企业存储系统中，全闪存阵列同比增长 17.6%，混合阵列与 HDD 阵列同比下降。<sup><a href="#fn7">[7]</a></sup><sup><a href="#fn8">[8]</a></sup>
+      研究含义：Pure 不必依赖“行业大盘高速增长”，只要持续吃到替代份额（HDD/混合 → AFA）即可。
+    </p>
+
+    <h4>6.2 四类对手画像（抢同一块预算的方式不同）</h4>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:18%">对手类型</th>
+          <th style="width:32%">代表公司/产品</th>
+          <th style="width:25%">它们的优势</th>
+          <th style="width:25%">对 Pure 的威胁方式</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>传统巨头</b></td>
+          <td>Dell EMC / NetApp / HPE 等</td>
+          <td>渠道深、存量客户多、打包能力强</td>
+          <td>用价格/打包守盘；客户换代时“顺手继续买”</td>
+        </tr>
+        <tr>
+          <td><b>云厂商</b></td>
+          <td>AWS/Azure/GCP（S3/Blob 等）</td>
+          <td>弹性、按需付费、开发者生态</td>
+          <td>云优先让新客户不买本地存储；冷热分层中把冷数据拿走</td>
+        </tr>
+        <tr>
+          <td><b>AI高性能新锐</b></td>
+          <td>WEKA、VAST、DDN 等（举例）</td>
+          <td>专攻 AI/HPC，很多是软件化/更云原生</td>
+          <td>在 AI 工厂/训练数据层直接对标 FlashBlade//EXA</td>
+        </tr>
+        <tr>
+          <td><b>软件控制层</b></td>
+          <td>备份/数据管理（Rubrik、Cohesity、Veeam 等）</td>
+          <td>中立的软件层，跨云/跨存储</td>
+          <td>通常不直接替代生产存储，但会改变架构形态与采购决策</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>“AI 趋势利好谁？”的手册式答案</summary>
+      <p>
+        AI 趋势利好“高性能数据底座”整体市场，但分蛋糕的关键在于：<b>谁更能证明在关键工作负载上带来更低的 TCO（含电/空间/人力/停机风险）</b>。
+        Pure 的优势在“全闪存 + 统一管理 + 订阅升级”，新锐优势在“更云原生/软件化/更贴 AI 工厂”。最终赢家可能不是单一公司，而是不同细分各有胜者。
+      </p>
+    </details>
+    <h4 id="sec-6-3">6.3 对照矩阵：Dell/NetApp/HPE/WEKA/VAST/云厂商（预算争夺地图）</h4>
+
+    <div class="callout">
+      <b>怎么用这一节：</b>不要只看“谁更强”。要问：<br/>
+      ① 客户采购时把钱放在哪个预算桶？（生产存储 / AI数据管道 / 云迁移 / 备份合规…）<br/>
+      ② 每个桶里谁的“赢单条件”更常出现？<br/>
+      ③ Pure 在哪些桶里是真优势，哪些桶里只是“参与者”？（决定增长可持续性）
+    </div>
+
+    <h4>6.3.1 厂商对照矩阵（研究手册版）</h4>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:12%">对手</th>
+          <th style="width:18%">定位/主力抓手</th>
+          <th style="width:26%">它们更容易赢的场景（赢单条件）</th>
+          <th style="width:24%">Pure 更容易赢的反击点（典型抓手）</th>
+          <th style="width:20%">你需要跟踪的信号（能量化最好）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>Dell EMC</b></td>
+          <td>传统巨头；全线产品 + 打包销售；守住存量盘</td>
+          <td>
+            • 客户已有大量 Dell/VMware 资产，换供应商风险高<br/>
+            • 采购强调“一站式”与折扣（存储+服务器+服务）<br/>
+            • 对 AI 性能不是“硬刚需”的通用场景
+          </td>
+          <td>
+            • 需要更低运维/更少停机：Evergreen 非中断升级<br/>
+            • 需要更高密度/更省电：DirectFlash 叙事（需客户验证）<br/>
+            • 需要更强一致的管理体验：Pure1/Fusion 平台化
+          </td>
+          <td>
+            • 产品毛利率是否被折扣压缩（价格战信号）<br/>
+            • 大型替换项目的赢单/丢单案例（渠道访谈）<br/>
+            • Dell 订阅/即服务策略是否加速抢预算（APEX）
+          </td>
+        </tr>
+
+        <tr>
+          <td><b>NetApp</b></td>
+          <td>混合云/数据管理强；NAS/ONTAP 生态；与云服务绑定</td>
+          <td>
+            • 客户高度重视“混合云一致性”：ONTAP/BlueXP<br/>
+            • 文件服务/多协议场景（NAS 历史优势）<br/>
+            • 以“云原生文件服务”交付（Azure NetApp Files / FSxN 等）
+          </td>
+          <td>
+            • 极致性能/低抖动的关键业务块存储（FlashArray）<br/>
+            • AI 训练数据管道吞吐与并发（FlashBlade/EXA）<br/>
+            • 运维简化与订阅化升级体验（Evergreen）
+          </td>
+          <td>
+            • NetApp 在云侧托管服务渗透是否提升（抢走新客户）<br/>
+            • Pure 自家云侧产品/Portworx 的增长动能（是否追上）<br/>
+            • RPO/ARR 是否持续领先营收（订阅飞轮强度）
+          </td>
+        </tr>
+
+        <tr>
+          <td><b>HPE</b></td>
+          <td>企业渠道强；GreenLake 即服务；计算+网络+存储一体</td>
+          <td>
+            • 客户偏好“IT 外包/即服务”与统一采购<br/>
+            • 传统企业强关系（大客户、政府/大型企业）<br/>
+            • 需要与 HPE 服务器/网络深度打包
+          </td>
+          <td>
+            • 性能/能效/密度与运维体验的“产品力硬差”竞争<br/>
+            • Evergreen//One 用同类“即服务”对冲 GreenLake<br/>
+            • 以更少团队实现更高可靠性（运维 TCO）
+          </td>
+          <td>
+            • STaaS（Evergreen//One）TCV 增长是否持续<br/>
+            • HPE 在存储侧是否主动降价/换代（竞争升级）<br/>
+            • Pure 的客户净扩张（NRR/扩容节奏）是否走强
+          </td>
+        </tr>
+
+        <tr>
+          <td><b>WEKA</b></td>
+          <td>AI/HPC 新锐；软件定义并行文件；可跑在标准服务器/云上</td>
+          <td>
+            • 客户想“用现成服务器自己堆”并追求极致性能<br/>
+            • AI 工厂/训练数据层（高吞吐并行读）<br/>
+            • 需要跨云/弹性部署且不想被硬件绑定
+          </td>
+          <td>
+            • 客户更需要“交钥匙的企业级平台”（少运维）<br/>
+            • 更强调端到端支持、稳定性与 SLA<br/>
+            • 以 FlashBlade//EXA 与平台管理降低复杂度
+          </td>
+          <td>
+            • AI 训练数据层 Pure 的 win-rate 是否提高/下降（渠道）<br/>
+            • FlashBlade 系列的增长与毛利结构<br/>
+            • 竞品“纯软件”是否在云侧更快扩张（需要持续监控）
+          </td>
+        </tr>
+
+        <tr>
+          <td><b>VAST Data</b></td>
+          <td>AI/非结构化数据平台新锐；强调规模化与架构创新</td>
+          <td>
+            • 超大规模/非结构化数据为主（文件/对象）<br/>
+            • 客户想要“平台化的数据湖”而不止存储阵列<br/>
+            • 对 AI 数据管道吞吐、扩展性极敏感
+          </td>
+          <td>
+            • Pure 强调统一软件栈 + DFM 密度/能效 + 订阅升级<br/>
+            • 通过 hyperscaler 突破验证（若可复制将反杀）<br/>
+            • 用更强的企业级交付与稳定性降低风险
+          </td>
+          <td>
+            • hyperscaler 业务能否从“单点突破”走向“多客户复制”<br/>
+            • 在 AI 数据平台层面 Pure 是否推出更强“平台故事”<br/>
+            • 重大客户案例的公开/半公开信息（非常关键）
+          </td>
+        </tr>
+
+        <tr>
+          <td><b>公有云（AWS/Azure/GCP）</b></td>
+          <td>云原生存储（对象/块/文件）+ 托管服务；弹性与生态</td>
+          <td>
+            • 新公司/云优先公司：不自建数据中心<br/>
+            • 冷数据/归档/备份：成本敏感，延迟不敏感<br/>
+            • 开发者驱动：直接用云 API（S3/Blob）
+          </td>
+          <td>
+            • 训练/推理热数据层：延迟/吞吐/抖动更敏感<br/>
+            • 合规与数据主权：本地/私有云需要更强控制<br/>
+            • 混合云：用 Pure 的云侧产品 + 统一管理守住客户
+          </td>
+          <td>
+            • Pure 云侧收入/合作进展（是否跟上云迁移趋势）<br/>
+            • 客户是否把“冷数据预算”迁走，但“热数据预算”仍扩容（结构变化）<br/>
+            • 企业推理/Agent 私有化部署是否提速（带动本地高性能存储）
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>6.3.2 预算桶争夺矩阵（把“竞品”翻译成“预算”）</h4>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:18%">预算桶/工作负载</th>
+          <th style="width:22%">客户最关心的指标</th>
+          <th style="width:22%">Pure 常见切入点</th>
+          <th style="width:22%">最常见的替代方案</th>
+          <th style="width:16%">结论（研究提示）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>关键业务数据库/虚拟化</b></td>
+          <td>低延迟、稳定性、升级不停机、运维人力</td>
+          <td>FlashArray + Evergreen（迁移/换代痛点）</td>
+          <td>Dell/NetApp/HPE 的传统阵列；部分上云托管数据库</td>
+          <td><span class="badge b-info">守盘+替换</span></td>
+        </tr>
+        <tr>
+          <td><b>AI 训练数据管道</b></td>
+          <td>吞吐（GB/s-TB/s）、并发、抖动、扩展性</td>
+          <td>FlashBlade / //EXA（“喂饱GPU”）</td>
+          <td>WEKA/VAST/DDN；云侧高性能文件服务</td>
+          <td><span class="badge b-good">攻盘</span></td>
+        </tr>
+        <tr>
+          <td><b>推理/RAG 检索底座</b></td>
+          <td>并发IO、p99延迟、可用性、可观测与审计留存</td>
+          <td>FlashArray/FlashBlade + Pure1/Fusion（平台化运维）</td>
+          <td>云存储 + 向量数据库；既有 NAS/对象存储</td>
+          <td><span class="badge b-info">结构性增量</span></td>
+        </tr>
+        <tr>
+          <td><b>K8s 持久化（推理/Agent）</b></td>
+          <td>数据迁移、保护、恢复、跨集群一致性</td>
+          <td>Portworx（K8s 数据服务）</td>
+          <td>NetApp Trident/云原生 CSI；开源方案</td>
+          <td><span class="badge b-warn">需验证</span></td>
+        </tr>
+        <tr>
+          <td><b>备份/归档/合规留存（冷）</b></td>
+          <td>成本、保留期、不可变、恢复演练</td>
+          <td>通常不是 Pure 的主战场（更多合作生态）</td>
+          <td>云对象存储（S3/Glacier）+ Rubrik/Cohesity/Veeam</td>
+          <td><span class="badge b-warn">预算外溢</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>6.3.3 竞争威胁地图（理解“谁在同一象限”）</h4>
+    <p class="mini">
+      坐标解释：横轴越靠左越偏“低延迟/高确定性（热数据）”，越靠右越偏“弹性/低成本（冷数据/云）”。纵轴越靠上越偏“交钥匙平台（厂商负责）”，越靠下越偏“软件化/自建（客户负责更多运维）”。
+      位置是研究用的<strong>定性</strong>示意图（不是市场份额或性能排名）。
+    </p>
+
+    <div class="svgwrap">
+      <svg width="1120" height="520" viewBox="0 0 1120 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="竞争威胁地图（示意）">
+        <defs>
+          <style>
+            .ax{stroke:#22304a;stroke-width:1.2}
+            .grid{stroke:rgba(255,255,255,.06);stroke-width:1}
+            .lab{fill:#9db0d0;font-family:ui-sans-serif,system-ui;font-size:12px}
+            .ttl{fill:#eaf2ff;font-family:ui-sans-serif,system-ui;font-size:13px;font-weight:700}
+            .dot{stroke:#0b0f14;stroke-width:2}
+            .d1{fill:#7dd3fc}   /* Pure */
+            .d2{fill:#fbbf24}   /* Traditional */
+            .d3{fill:#34d399}   /* AI native */
+            .d4{fill:#fb7185}   /* Cloud */
+          </style>
+        </defs>
+
+        <!-- Plot area -->
+        <rect x="90" y="40" width="960" height="380" fill="rgba(0,0,0,.12)" stroke="#22304a" stroke-width="1.2" rx="14" ry="14"/>
+
+        <!-- Grid -->
+        <line class="grid" x1="330" y1="40" x2="330" y2="420"/>
+        <line class="grid" x1="570" y1="40" x2="570" y2="420"/>
+        <line class="grid" x1="810" y1="40" x2="810" y2="420"/>
+
+        <line class="grid" x1="90" y1="166" x2="1050" y2="166"/>
+        <line class="grid" x1="90" y1="292" x2="1050" y2="292"/>
+
+        <!-- Axes labels -->
+        <text class="ttl" x="90" y="24">平台/运维责任（上：交钥匙平台；下：软件化自建）</text>
+        <text class="ttl" x="90" y="500">工作负载属性（左：热数据/低延迟；右：冷数据/弹性/低成本）</text>
+
+        <text class="lab" x="90" y="452">↑ 更像“厂商交付的平台”</text>
+        <text class="lab" x="90" y="418">↓ 更像“软件/标准硬件自建”</text>
+
+        <text class="lab" x="92" y="440" transform="rotate(-90 92 440)">（纵轴）</text>
+
+        <text class="lab" x="96" y="438"></text>
+
+        <text class="lab" x="90" y="438"></text>
+
+        <text class="lab" x="90" y="438"></text>
+
+        <text class="lab" x="110" y="442"></text>
+
+        <text class="lab" x="110" y="440"></text>
+
+        <text class="lab" x="120" y="440"></text>
+
+        <!-- X labels -->
+        <text class="lab" x="110" y="444">热数据 / 低延迟</text>
+        <text class="lab" x="910" y="444">冷数据 / 弹性 / 低成本</text>
+
+        <!-- Dots (approx positions) -->
+        <circle class="dot d1" cx="250" cy="135" r="9"/><text class="lab" x="265" y="140">Pure Storage</text>
+
+        <circle class="dot d2" cx="290" cy="110" r="8"/><text class="lab" x="305" y="115">Dell</text>
+        <circle class="dot d2" cx="360" cy="145" r="8"/><text class="lab" x="375" y="150">HPE</text>
+        <circle class="dot d2" cx="510" cy="155" r="8"/><text class="lab" x="525" y="160">NetApp</text>
+
+        <circle class="dot d3" cx="360" cy="320" r="8"/><text class="lab" x="375" y="325">WEKA</text>
+        <circle class="dot d3" cx="430" cy="270" r="8"/><text class="lab" x="445" y="275">VAST</text>
+        <circle class="dot d3" cx="300" cy="290" r="8"/><text class="lab" x="315" y="295">DDN（示例）</text>
+
+        <circle class="dot d4" cx="860" cy="230" r="8"/><text class="lab" x="875" y="235">AWS/Azure/GCP 存储</text>
+        <circle class="dot d4" cx="940" cy="335" r="8"/><text class="lab" x="955" y="340">S3/Blob（冷）</text>
+
+        <!-- Legend -->
+        <rect x="90" y="430" width="960" height="70" fill="rgba(255,255,255,.02)" stroke="#22304a" stroke-width="1.2" rx="14" ry="14"/>
+        <circle class="dot d1" cx="120" cy="465" r="7"/><text class="lab" x="135" y="470">PSTG（Pure）</text>
+        <circle class="dot d2" cx="280" cy="465" r="7"/><text class="lab" x="295" y="470">传统巨头（Dell/NetApp/HPE）</text>
+        <circle class="dot d3" cx="560" cy="465" r="7"/><text class="lab" x="575" y="470">AI/HPC 新锐（WEKA/VAST/DDN…）</text>
+        <circle class="dot d4" cx="860" cy="465" r="7"/><text class="lab" x="875" y="470">公有云存储（对象/文件/块）</text>
+      </svg>
+    </div>
+
+    <details>
+      <summary>手册式结论：这张地图告诉我们什么？</summary>
+      <ul>
+        <li><b>Pure 真正的主战场</b>在左侧“热数据/低延迟/高确定性”象限：关键业务、训练数据管道、生产推理与RAG。</li>
+        <li><b>云的威胁</b>主要在右侧：新客户直接上云、冷数据预算被迁走；但热数据层通常仍需要更强的性能与控制。</li>
+        <li><b>AI新锐的威胁</b>在左下：客户愿意承担更多自建复杂度，换取更极致性能/更云原生的灵活性。</li>
+        <li><b>传统巨头的威胁</b>在左上：靠存量盘、打包折扣与采购惯性“守盘”。Pure 要靠产品力与订阅体验“替换”。</li>
+      </ul>
+    </details>
+
+  </section>
+
+  <!-- 7 -->
+  <section id="sec-7">
+    <h2>7) 财务质量：增速、毛利、现金流、SBC/稀释</h2>
+
+    <h4>7.1 FY2026 Q3 财务要点（同比）</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>指标</th>
+          <th class="num">FY2026 Q3</th>
+          <th class="num">FY2025 Q3</th>
+          <th>解读</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>总营收</td>
+          <td class="num">$964.5M</td>
+          <td class="num">$831.1M</td>
+          <td>同比 +16%，管理层称超过指引上限<sup><a href="#fn1">[1]</a></sup></td>
+        </tr>
+        <tr>
+          <td>产品收入</td>
+          <td class="num">$534.8M</td>
+          <td class="num">$454.7M</td>
+          <td>同比 +18%；“产品”含 royalties 与部分软件期限许可<sup><a href="#fn2">[2]</a></sup></td>
+        </tr>
+        <tr>
+          <td>订阅服务收入</td>
+          <td class="num">$429.7M</td>
+          <td class="num">$376.3M</td>
+          <td>同比 +14%；约占总营收 45%<sup><a href="#fn1">[1]</a></sup></td>
+        </tr>
+        <tr>
+          <td>Non-GAAP 毛利率 / 经营利润率</td>
+          <td class="num">74.1% / 20.3%</td>
+          <td class="num">(披露)</td>
+          <td>接近“软件化平台”的利润结构；但 FY27 可能加大投入压制利润率<sup><a href="#fn2">[2]</a></sup></td>
+        </tr>
+        <tr>
+          <td>经营现金流 / 自由现金流</td>
+          <td class="num">$116.0M / $52.6M</td>
+          <td class="num">(披露)</td>
+          <td>现金流是硬质量；需要看是否持续改善<sup><a href="#fn1">[1]</a></sup></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>7.2 FY2026 指引（Q3 后上调）</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>项目</th>
+          <th>Q4 FY26 指引</th>
+          <th>FY26 指引（全年）</th>
+          <th>研究含义</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>营收</td>
+          <td>$1.02–$1.04B</td>
+          <td>$3.63–$3.64B</td>
+          <td>全年增长约 14.5–14.9%；单季迈向 10 亿美元规模<sup><a href="#fn1">[1]</a></sup></td>
+        </tr>
+        <tr>
+          <td>Non-GAAP Operating Income</td>
+          <td>$220–$230M</td>
+          <td>$629–$639M</td>
+          <td>FY26 利润改善部分来自 hyperscaler 贡献，但公司计划将收益再投入增长<sup><a href="#fn2">[2]</a></sup></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>7.3 SBC：必须量化，否则会误判盈利质量</h4>
+    <p>
+      公司在 10‑Q 中披露：FY2026 Q3 单季 SBC 合计约 <b>$134.5M</b>（前三季度 $348.2M）。<sup><a href="#fn12">[12]</a></sup>
+      研究动作建议：
+    </p>
+    <ul>
+      <li><b>稀释率</b>：统计 3–5 年流通股变化，判断回购是否只是抵消稀释。</li>
+      <li><b>“Non-GAAP → 现金流 → 每股”三步走</b>：最终看每股自由现金流（FCF/share）是否持续改善。</li>
+    </ul>
+
+    <details>
+      <summary>回购授权：2025-12-10 新增 $400M 回购（怎么看）</summary>
+      <p>
+        公司公告新增最高 <b>$400M</b> 回购授权。<sup><a href="#fn13">[13]</a></sup>
+        研究上需要问两点：回购是否足以覆盖 SBC 稀释？现金优先级是回购还是增长投入（AI、渠道、研发）？
+      </p>
+    </details>
+
+    <h4 id="sec-7-4">7.4 成本与供给：NAND涨价、存货、顺价能力与毛利验证框架</h4>
+
+    <div class="callout">
+      <b>你提出的问题非常关键：</b>“存储涨价/供给紧”到底会让 Pure 更好过，还是更难过？<br/>
+      手册化答案：不要用一句“客户被动接受涨价”概括。要把链路拆成 <b>上游成本</b> → <b>公司备货/交付</b> → <b>定价/折扣</b> → <b>客户行为</b> → <b>毛利与现金流</b> 五段，并在财报里逐段验证。
+    </div>
+
+    <h4>7.4.1 上游到底在涨什么？（NAND/企业级SSD）</h4>
+    <p>
+      企业全闪存阵列（AFA）的核心物料之一是 <b>NAND Flash（以及企业级 SSD）</b>。当上游进入卖方市场，系统厂商会同时面临：<b>成本上升</b> 与 <b>交付/配额约束</b>。
+      TrendForce 在 2026-02-02 的调查中提到：2026 年 1Q 的 NAND 合约价与企业级 SSD 价格存在大幅上行预期（不同品类涨幅不同）。<sup><a href="#fn18">[18]</a></sup>
+    </p>
+    <ul>
+      <li><b>研究含义 1：</b>这不是“只有 Pure 能涨价”，更像是全行业都要面对的成本波动。</li>
+      <li><b>研究含义 2：</b>谁能更稳地拿到供给、谁能更快地把成本传导出去，谁就更抗压。</li>
+    </ul>
+
+    <h4>7.4.2 财报怎么读“备货/锁供给”？（从 Inventory 入手）</h4>
+    <p class="mini">
+      你说“存储本身难买，量大的更容易买”——这类判断不能靠感觉，要用财报里的 <b>Inventory（存货）</b> 与其对现金流的影响来验证。
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>时间点</th>
+          <th class="num">Inventory（存货）</th>
+          <th>手册解读</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>FY26 Q2 期末</td>
+          <td class="num">$46.8M</td>
+          <td>相对更“轻”的备货状态（基准点）<sup><a href="#fn19">[19]</a></sup></td>
+        </tr>
+        <tr>
+          <td>FY26 Q3 期末</td>
+          <td class="num">$82.4M</td>
+          <td>存货显著上升，常见解释是：<b>提前采购/锁关键件</b>，以降低供应链扰动对交付的影响<sup><a href="#fn1">[1]</a></sup></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      现金流侧也能看到“备货占用现金”的影子：FY26 Q3 经营现金流明细里，<b>Inventory</b> 相关项目为负（意味着存货增加消耗现金）。<sup><a href="#fn1">[1]</a></sup>
+      这与“公司在供给趋紧前做了仓位”的故事一致。
+    </p>
+
+    <h4>7.4.3 管理层口径：为什么要备货？（把“故事”落到原文）</h4>
+    <p>
+      在 FY26 Q3 的电话会问答中，管理层对存货上升的解释涉及：<b>关税/不确定性下的提前采购</b>、以及对全球硬件部件市场趋紧的预防性动作（概括）。<sup><a href="#fn20">[20]</a></sup>
+      研究动作：把这类表述记为“可追踪假设”，下季继续问：这些备货是否转化为更稳的交付与更好的毛利？
+    </p>
+
+    <h4>7.4.4 你这条链路“对在哪里”？</h4>
+    <ul>
+      <li><b>供给紧时，交付确定性会升维成竞争要素。</b>对 AI 训练/推理等刚性场景，客户常常更在意“能不能按时交付/上线”，而不是只比一张报价单。</li>
+      <li><b>备货/锁关键件的能力会影响赢单。</b>如果竞品交期更不确定，客户更可能转向交付更稳的供应商（哪怕价格略高）。</li>
+      <li><b>结构性优势可能更“抗成本”。</b>Pure 的 DirectFlash（DFM）与系统级介质管理，被公司用于论证“更好的介质效率/供应链经济性”（厂商口径）。<sup><a href="#fn11">[11]</a></sup></li>
+    </ul>
+
+    <h4>7.4.5 但“客户被动接受涨价”通常不成立（必须加的三条现实摩擦）</h4>
+    <ul>
+      <li><b>摩擦 1：存货上升 ≠ 一定更便宜。</b>存货金额上升只能说明“拿货/备货”，不能直接推出“单位成本更低”。单位成本要结合毛利率与管理层对成本的描述来判断。</li>
+      <li><b>摩擦 2：客户有反制动作。</b>涨价时客户可能推迟采购、降规格、谈更大折扣、或把部分需求迁到云/替代方案（尤其是“非刚性”工作负载）。</li>
+      <li><b>摩擦 3：竞争会用折扣反击。</b>如果传统巨头为了守盘大幅降价，Pure 的“顺价”会被折扣抵消，毛利也会承压。</li>
+    </ul>
+
+    <h4>7.4.6 “顺价能力”如何在财报里被证实或证伪？（手册化指标表）</h4>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:20%">观察点</th>
+          <th style="width:30%">你想看到的有利信号</th>
+          <th style="width:30%">可能的反例/风险信号</th>
+          <th style="width:20%">下一步要问的问题</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>毛利率</b></td>
+          <td>Non-GAAP GM 稳定/上行；若成本上行但 GM 不掉，说明传导/结构/效率有效</td>
+          <td>GM 明显下滑且解释为“成本/折扣/组合恶化”</td>
+          <td>涨价传导滞后多久？折扣是否加大？产品 vs 订阅毛利结构变化？</td>
+        </tr>
+        <tr>
+          <td><b>收入节奏</b></td>
+          <td>交付不受限；收入与 RPO/订单节奏匹配</td>
+          <td>交付受限导致收入确认延迟（但订单在）</td>
+          <td>供给是否成为约束？交期是否拉长？是否出现“拉货/提前采购”扭曲？</td>
+        </tr>
+        <tr>
+          <td><b>库存与现金流</b></td>
+          <td>存货合理上升且随后回落；现金流在波动后恢复</td>
+          <td>存货持续攀升 + 现金流持续转弱（可能是备货过度或需求走弱）</td>
+          <td>备货的目标覆盖周期？是否存在过时/减值风险？</td>
+        </tr>
+        <tr>
+          <td><b>客户行为</b></td>
+          <td>刚性场景需求仍强；续费/扩容正常</td>
+          <td>客户推迟采购、降规格、或转向云/替代方案</td>
+          <td>哪些 workload 在延迟？哪些仍刚性？是否出现预算桶迁移？</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>7.4.7 一张图把“涨价周期”讲清楚（可打印）</h4>
+    <div class="svgwrap">
+      <svg width="1120" height="420" viewBox="0 0 1120 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="涨价周期：成本-供给-定价-客户行为-财报表现（示意）">
+        <defs>
+          <style>
+            .b{fill:rgba(255,255,255,.04);stroke:#22304a;stroke-width:1.2}
+            .t{fill:#eaf2ff;font-family:ui-sans-serif,system-ui;font-size:13px;font-weight:700}
+            .s{fill:#9db0d0;font-family:ui-sans-serif,system-ui;font-size:12px}
+            .a{stroke:#7dd3fc;stroke-width:2.2;marker-end:url(#arrow)}
+            .d{fill:#7dd3fc}
+          </style>
+          <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+            <path d="M0,0 L9,3 L0,6 Z" fill="#7dd3fc"/>
+          </marker>
+        </defs>
+
+        <rect class="b" x="40" y="60" width="240" height="120" rx="14"/>
+        <text class="t" x="60" y="92">上游：NAND / 企业SSD</text>
+        <text class="s" x="60" y="115">• 合约价上行</text>
+        <text class="s" x="60" y="135">• 供给/配额更紧</text>
+        <text class="s" x="60" y="155">→ 成本 + 交期双压力</text>
+
+        <rect class="b" x="320" y="60" width="240" height="120" rx="14"/>
+        <text class="t" x="340" y="92">厂商策略（PSTG）</text>
+        <text class="s" x="340" y="115">• 备货/锁关键件</text>
+        <text class="s" x="340" y="135">• DFM/介质效率</text>
+        <text class="s" x="340" y="155">• 合同/供给管理</text>
+
+        <rect class="b" x="600" y="60" width="240" height="120" rx="14"/>
+        <text class="t" x="620" y="92">交付 & 定价</text>
+        <text class="s" x="620" y="115">• 交付确定性</text>
+        <text class="s" x="620" y="135">• 列表价/折扣策略</text>
+        <text class="s" x="620" y="155">• 成本传导速度</text>
+
+        <rect class="b" x="880" y="60" width="200" height="120" rx="14"/>
+        <text class="t" x="900" y="92">客户行为</text>
+        <text class="s" x="900" y="115">刚性：接受涨价</text>
+        <text class="s" x="900" y="135">弹性：延迟/降规</text>
+        <text class="s" x="900" y="155">替代：上云/竞品</text>
+
+        <rect class="b" x="200" y="230" width="720" height="140" rx="14"/>
+        <text class="t" x="220" y="262">最终落到财报（你要验证的“可量化结果”）</text>
+        <text class="s" x="220" y="288">• 毛利率（GM）是否稳住？（顺价/效率/结构）</text>
+        <text class="s" x="220" y="310">• 收入节奏是否受供给影响？（交期/确认）</text>
+        <text class="s" x="220" y="332">• 存货与现金流：备货是否合理，还是形成资金占用/减值风险？</text>
+        <text class="s" x="220" y="354">• 订单可见性（RPO/ARR）是否继续领先？（需求是否被“涨价”伤到）</text>
+
+        <line class="a" x1="280" y1="120" x2="320" y2="120"/>
+        <line class="a" x1="560" y1="120" x2="600" y2="120"/>
+        <line class="a" x1="840" y1="120" x2="880" y2="120"/>
+
+        <line class="a" x1="720" y1="180" x2="720" y2="230"/>
+      </svg>
+    </div>
+
+    <details>
+      <summary>手册式结论：涨价周期对 Pure 是利好还是利空？</summary>
+      <ul>
+        <li><b>对收入（美元口径）</b>：如果行业普涨，系统价格上浮会抬升收入；但要看需求是否被抑制。</li>
+        <li><b>对毛利</b>：关键在“成本传导滞后 + 折扣竞争”是否吃掉毛利。不是天然利好。</li>
+        <li><b>对份额</b>：若 Pure 交付更稳、TCO 更优、运维更省，供给紧时反而更容易赢单。</li>
+      </ul>
+    </details>
+
+  </section>
+
+  <!-- 8 -->
+  <section id="sec-8">
+    <h2>8) 估值框架：P/S、Forward P/E、情景与敏感性</h2>
+
+    <h4>8.1 P/S 粗算（用公司指引 + 市值快照）</h4>
+    <p>
+      以 2026-02-10 市值约 <b>$24.31B</b>，FY2026 收入指引中值约 <b>$3.635B</b> 粗算：
+      <b>P/S ≈ 6.7x</b>。<sup><a href="#fn3">[3]</a></sup><sup><a href="#fn1">[1]</a></sup>
+      溢价来自：增长 + 高毛利结构 + 订阅可见性（ARR/RPO）。
+    </p>
+
+    <h4>8.2 Forward P/E（对比传统存储）</h4>
+    <p>
+      估值站点口径会变化。以 GuruFocus 示例口径，PSTG 2026-01-29 的 forward P/E 约 <b>31.7x</b>。<sup><a href="#fn14">[14]</a></sup>
+      同口径对比：Dell 约 <b>10.5x</b>，NetApp 约 <b>11.2x</b>，HPE 约 <b>9.1x</b>。<sup><a href="#fn15">[15]</a></sup><sup><a href="#fn16">[16]</a></sup><sup><a href="#fn17">[17]</a></sup>
+    </p>
+
+    <div class="callout warn">
+      <b>估值要验证的“两个变量”：</b><br/>
+      1) FY2027 是否能维持 15%+ 增长并延续订阅占比提升；<br/>
+      2) hyperscaler/AI 业务是否带来更优毛利与更强复利，而不是“低毛利大单 + 波动”。<sup><a href="#fn2">[2]</a></sup>
+    </div>
+
+    <h4>8.3 情景框架（手册模板，可用于你自己的模型）</h4>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:18%">情景</th>
+          <th style="width:42%">关键假设（示例写法）</th>
+          <th style="width:40%">对估值的含义（方法而非结论）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge b-good">Bull</span></td>
+          <td>hyperscaler 可复制到 2+ 客户；FlashBlade//EXA 在 AI 工厂成为“默认选项”；ARR/RPO 持续加速。</td>
+          <td>可给予更高的增长溢价（P/S、Forward P/E 上沿）；关键是验证毛利结构与现金流转化。</td>
+        </tr>
+        <tr>
+          <td><span class="badge b-info">Base</span></td>
+          <td>企业 AFA 替代持续；订阅占比稳步提升；hyperscaler 贡献温和、波动可控。</td>
+          <td>估值更依赖“持续 15% 左右增长 + 经营杠杆 + 回购/稀释控制”。</td>
+        </tr>
+        <tr>
+          <td><span class="badge b-bad">Bear</span></td>
+          <td>NAND/供应链压力持续；竞争加剧导致折扣上升；hyperscaler 波动大且毛利不理想；SBC 稀释压制每股收益。</td>
+          <td>倍数收缩（尤其是 Forward P/E）；需要用 FCF 质量做底线判断。</td>
+        </tr>
+      </tbody>
+    </table>
+    <h4 id="sec-8-4">8.4 财务建模模板：收入拆分 + 利润/现金流 + 稀释/回购 + 估值输出（可编辑）</h4>
+
+    <div class="callout">
+      <b>这不是“预测器”，而是“建模骨架”。</b><br/>
+      你可以把它当作：①快速 sanity check（用少量假设算出估值锚点），②把不确定性集中到少数关键参数（增长、毛利、FCF、稀释、倍数）。<br/>
+      <span class="mini">提示：页面内的表格可以直接编辑输入；底部小脚本会自动更新部分输出（离线可用）。</span>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <h3>8.4.1 快速估值工作台（输入少量关键数）</h3>
+        <p class="mini">
+          用法：把“事实”（公司指引/最新财报）填进去，再把“假设”（FCF margin、目标倍数、回购）填进去，得到一组可讨论的估值锚点。
+        </p>
+
+        <table>
+          <thead>
+            <tr><th style="width:45%">输入（可改）</th><th style="width:55%">数值</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>市值 Market Cap（$B）</td><td><input class="input" id="m_mktcap" type="number" step="0.01" value="24.31"/></td></tr>
+            <tr><td>现金及投资 Cash & Investments（$B）</td><td><input class="input" id="m_cash" type="number" step="0.01" value="1.50"/></td></tr>
+            <tr><td>总债务 Debt（$B，若无可填0）</td><td><input class="input" id="m_debt" type="number" step="0.01" value="0.00"/></td></tr>
+            <tr><td>股价 Price（$）</td><td><input class="input" id="m_price" type="number" step="0.01" value="73.64"/></td></tr>
+            <tr><td>稀释后股数 Diluted Shares（M）</td><td><input class="input" id="m_shares" type="number" step="1" value="330"/></td></tr>
+            <tr><td>FY2026 收入（$B，指引中值）</td><td><input class="input" id="m_rev" type="number" step="0.01" value="3.635"/></td></tr>
+            <tr><td>FY2026 FCF Margin（%）</td><td><input class="input" id="m_fcfm" type="number" step="0.1" value="16.0"/></td></tr>
+            <tr><td>目标 P/S（x，用于情景）</td><td><input class="input" id="m_tps" type="number" step="0.1" value="7.5"/></td></tr>
+            <tr><td>目标 P/FCF（x，用于情景）</td><td><input class="input" id="m_tpfcf" type="number" step="0.1" value="35.0"/></td></tr>
+          </tbody>
+        </table>
+
+        <div class="hr"></div>
+
+        <table>
+          <thead>
+            <tr><th style="width:45%">输出（自动计算）</th><th style="width:55%">结果</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>企业价值 EV（$B）</td><td class="calc-out" id="o_ev">—</td></tr>
+            <tr><td>P/S（当前）</td><td class="calc-out" id="o_ps">—</td></tr>
+            <tr><td>EV/S（当前）</td><td class="calc-out" id="o_evs">—</td></tr>
+            <tr><td>FCF（$B，按 margin 估算）</td><td class="calc-out" id="o_fcf">—</td></tr>
+            <tr><td>FCF Yield（FCF/市值）</td><td class="calc-out" id="o_fcfy">—</td></tr>
+            <tr><td>FCF / Share（$）</td><td class="calc-out" id="o_fcfps">—</td></tr>
+            <tr><td>情景：按目标 P/S 的隐含股价（$）</td><td class="calc-out" id="o_px_ps">—</td></tr>
+            <tr><td>情景：按目标 P/FCF 的隐含股价（$）</td><td class="calc-out" id="o_px_pfcf">—</td></tr>
+          </tbody>
+        </table>
+
+        <p class="mini">
+          <b>解释：</b>这块输出不是“正确价格”，只是把讨论聚焦在：你愿意给多少倍数、你相信多少 FCF margin，以及每股稀释/回购如何影响“每股”回报。
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>8.4.2 稀释/回购模块（把 SBC 变成“每股”的问题）</h3>
+        <p class="mini">
+          用法：把年度 SBC 导致的“净新增股数”（或稀释率）与回购金额填进来，计算期末股数与每股指标的变化。<br/>
+          <span class="muted">提示：如果回购长期只抵消 SBC 稀释，那么“回购”对股东回报的贡献被高估。</span>
+        </p>
+
+        <table>
+          <thead><tr><th style="width:55%">输入（可改）</th><th style="width:45%">数值</th></tr></thead>
+          <tbody>
+            <tr><td>期初稀释后股数 Begin Shares（M）</td><td><input class="input" id="s_begin" type="number" step="1" value="330"/></td></tr>
+            <tr><td>SBC/期权等导致净新增股数 Net New Shares（M）</td><td><input class="input" id="s_sbc" type="number" step="0.1" value="8.0"/></td></tr>
+            <tr><td>回购金额 Buyback（$M）</td><td><input class="input" id="s_bb" type="number" step="1" value="400"/></td></tr>
+            <tr><td>回购均价 Avg Buyback Price（$）</td><td><input class="input" id="s_bbpx" type="number" step="0.01" value="70.00"/></td></tr>
+          </tbody>
+        </table>
+
+        <div class="hr"></div>
+
+        <table>
+          <thead><tr><th style="width:55%">输出（自动计算）</th><th style="width:45%">结果</th></tr></thead>
+          <tbody>
+            <tr><td>回购股数 Shares Repurchased（M）</td><td class="calc-out" id="so_rep">—</td></tr>
+            <tr><td>期末股数 End Shares（M）</td><td class="calc-out" id="so_end">—</td></tr>
+            <tr><td>净变化 Net Δ（M）</td><td class="calc-out" id="so_delta">—</td></tr>
+            <tr><td>净变化 Net Δ（%）</td><td class="calc-out" id="so_delta_pct">—</td></tr>
+          </tbody>
+        </table>
+
+        <div class="sticky-note" style="margin-top:10px;">
+          <b>研究重点：</b>你不需要猜“市场会给多少倍数”。你需要搞清楚：<br/>
+          ① 公司能否把增长转成 FCF（现金流）；<br/>
+          ② 这些 FCF 最终能否转成“每股”增长（稀释控制 + 回购有效）。<br/>
+          <span class="mini">（这两点决定长期复利，而不是某个季度的 beat/miss。）</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <h3>8.4.3 三年“可复制到 Excel”的简化模型模板（分产品/订阅）</h3>
+      <p class="mini">
+        说明：下面是一个<strong>模板</strong>，不是预测。建议把 FY2026 作为“基期”，再分别对产品与订阅设增长；利润用 GM 与 OpEx 口径；现金流用 FCF margin 或由 CFO/Capex 推导。<br/>
+        你可以：复制整张表到 Excel → 把输入区（浅蓝色行）填上 → 公式行自动算。
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:28%">（模板行）</th>
+            <th class="num">FY2026A/Guidance</th>
+            <th class="num">FY2027E</th>
+            <th class="num">FY2028E</th>
+            <th class="num">FY2029E</th>
+            <th style="width:24%">公式/说明（Excel写法示例）</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row-input"><td><b>输入：订阅收入占比（%）</b></td><td class="mono">[填]</td><td class="mono">—</td><td class="mono">—</td><td class="mono">—</td><td class="mono">Sub% = SubRev / TotalRev</td></tr>
+          <tr class="row-input"><td><b>输入：总收入 Total Revenue</b></td><td class="mono">[填]</td><td class="mono">=</td><td class="mono">=</td><td class="mono">=</td><td class="mono">Total = Product + Subscription</td></tr>
+
+          <tr><td>产品收入 Product Revenue</td><td class="mono">=Total*(1-Sub%)</td><td class="mono">=Prev*(1+gP)</td><td class="mono">=Prev*(1+gP)</td><td class="mono">=Prev*(1+gP)</td><td class="mono">gP：产品增速假设</td></tr>
+          <tr><td>订阅服务收入 Subscription Revenue</td><td class="mono">=Total*Sub%</td><td class="mono">=Prev*(1+gS)</td><td class="mono">=Prev*(1+gS)</td><td class="mono">=Prev*(1+gS)</td><td class="mono">gS：订阅增速假设</td></tr>
+
+          <tr class="row-input"><td><b>输入：产品毛利率 GM_Product（%）</b></td><td class="mono">[填]</td><td class="mono">[填]</td><td class="mono">[填]</td><td class="mono">[填]</td><td class="mono">可设随规模改善/成本波动</td></tr>
+          <tr class="row-input"><td><b>输入：订阅毛利率 GM_Sub（%）</b></td><td class="mono">[填]</td><td class="mono">[填]</td><td class="mono">[填]</td><td class="mono">[填]</td><td class="mono">订阅通常高于产品</td></tr>
+
+          <tr><td>毛利 Gross Profit</td><td class="mono">=P*GM_P + S*GM_S</td><td class="mono">=…</td><td class="mono">=…</td><td class="mono">=…</td><td class="mono">两块毛利相加</td></tr>
+          <tr><td>综合毛利率 GM_Blended</td><td class="mono">=GP/Total</td><td class="mono">=…</td><td class="mono">=…</td><td class="mono">=…</td><td class="mono">观察结构提升</td></tr>
+
+          <tr class="row-input"><td><b>输入：Non-GAAP OpEx（%收入）</b></td><td class="mono">[填]</td><td class="mono">[填]</td><td class="mono">[填]</td><td class="mono">[填]</td><td class="mono">也可拆 R&D/S&M/G&A</td></tr>
+          <tr><td>Non-GAAP Operating Income</td><td class="mono">=GP-OpEx</td><td class="mono">=…</td><td class="mono">=…</td><td class="mono">=…</td><td class="mono">经营杠杆核心</td></tr>
+
+          <tr class="row-input"><td><b>输入：SBC（%收入）</b></td><td class="mono">[填]</td><td class="mono">[填]</td><td class="mono">[填]</td><td class="mono">[填]</td><td class="mono">GAAP 与 Non-GAAP差异关键</td></tr>
+          <tr><td>GAAP Operating Income（简化）</td><td class="mono">=NonGAAP - SBC$</td><td class="mono">=…</td><td class="mono">=…</td><td class="mono">=…</td><td class="mono">SBC$ = Total*SBC%</td></tr>
+
+          <tr class="row-input"><td><b>输入：FCF Margin（%收入）</b></td><td class="mono">[填]</td><td class="mono">[填]</td><td class="mono">[填]</td><td class="mono">[填]</td><td class="mono">快速建模可直接用</td></tr>
+          <tr><td>Free Cash Flow（简化）</td><td class="mono">=Total*FCFm</td><td class="mono">=…</td><td class="mono">=…</td><td class="mono">=…</td><td class="mono">FCFm：FCF margin 假设</td></tr>
+
+          <tr class="row-input"><td><b>输入：期末稀释股数（M）</b></td><td class="mono">[填]</td><td class="mono">[填]</td><td class="mono">[填]</td><td class="mono">[填]</td><td class="mono">可由稀释/回购模块推导</td></tr>
+          <tr><td>FCF / Share</td><td class="mono">=FCF/Shares</td><td class="mono">=…</td><td class="mono">=…</td><td class="mono">=…</td><td class="mono">长期复利核心口径之一</td></tr>
+
+          <tr class="row-input"><td><b>输入：目标倍数（P/S 或 P/FCF）</b></td><td class="mono">[填]</td><td class="mono">[填]</td><td class="mono">[填]</td><td class="mono">[填]</td><td class="mono">倍数=市场情绪+增长质量</td></tr>
+          <tr><td>隐含市值 / 股价（示例）</td><td class="mono">=Rev*P/S</td><td class="mono">=…</td><td class="mono">=…</td><td class="mono">=…</td><td class="mono">或 = FCF/share * P/FCF</td></tr>
+        </tbody>
+      </table>
+
+      <details>
+        <summary>建模提示：把不确定性收敛到 6 个“可讨论参数”</summary>
+        <ul>
+          <li><b>gP</b>：产品收入增速（与替换周期、价格战、hyperscaler节奏有关）</li>
+          <li><b>gS</b>：订阅收入增速（与 ARR/RPO、续费、STaaS 渗透有关）</li>
+          <li><b>GM</b>：产品/订阅毛利（受 NAND 成本、折扣、结构影响）</li>
+          <li><b>OpEx%</b>：再投资强度（FY27 可能再投入增长，压利润率）</li>
+          <li><b>FCF margin</b>：把利润转现金的能力（最终看 FCF/Share）</li>
+          <li><b>稀释净额</b>：SBC 与回购谁更大（决定每股复利）</li>
+        </ul>
+      </details>
+    </div>
+
+  </section>
+
+  <!-- 9 -->
+  <section id="sec-9">
+    <h2>9) 跟踪看板：每季必看指标与信号（手册化追踪）</h2>
+
+    <h4>9.1 指标看板（按“增长—质量—风险”分层）</h4>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:20%">层级</th>
+          <th style="width:40%">指标</th>
+          <th style="width:40%">解读与“异常信号”</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>增长</b></td>
+          <td>营收增速；产品/订阅分拆；新增客户数；大客户覆盖</td>
+          <td>订阅增速是否持续 ≥ 营收增速？新增客户是否波动过大？<sup><a href="#fn1">[1]</a></sup><sup><a href="#fn2">[2]</a></sup></td>
+        </tr>
+        <tr>
+          <td><b>可见性</b></td>
+          <td>ARR；RPO（总/短期）；TCV（STaaS）</td>
+          <td>RPO 增速若显著弱于营收或突然放缓，通常意味着订单动能变化。<sup><a href="#fn1">[1]</a></sup></td>
+        </tr>
+        <tr>
+          <td><b>盈利质量</b></td>
+          <td>Non-GAAP GM/Op；GAAP 与 Non-GAAP 差异；FCF</td>
+          <td>Non-GAAP 漂亮但 FCF 走弱要警惕；毛利率下滑需追因（成本/折扣/产品组合）。<sup><a href="#fn1">[1]</a></sup></td>
+        </tr>
+        <tr>
+          <td><b>资本结构</b></td>
+          <td>现金及投资；回购金额；流通股变化</td>
+          <td>回购若长期仅抵消稀释，则“股东回报”需要更审慎解读。<sup><a href="#fn13">[13]</a></sup></td>
+        </tr>
+        <tr>
+          <td><b>AI/新曲线</b></td>
+          <td>FlashBlade//EXA 落地信息；hyperscaler 经济模型披露；相关指引</td>
+          <td>公司减少披露后，更要盯“收入/毛利/订单节奏”是否出现可解释的波动。<sup><a href="#fn2">[2]</a></sup></td>
+        </tr>
+        <tr>
+          <td><b>风险</b></td>
+          <td>NAND/供应链评论；折扣与竞争态势；SBC/稀释</td>
+          <td>管理层对成本压力措辞升级；SBC 占比长期高企；股价对财报敏感度上升。<sup><a href="#fn2">[2]</a></sup><sup><a href="#fn12">[12]</a></sup></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>9.2 时间表（当前版本关心的关键点）</h4>
+    <ul>
+      <li><b>2026-02-25 14:00 PT</b>：FY2026 Q4 & 全年电话会（FY 截至 2026-02-01）。<sup><a href="#fn5">[5]</a></sup></li>
+      <li>关注：FY2027 初始指引；hyperscaler 经济模型；成本与再投资策略。</li>
+    </ul>
+
+    <details>
+      <summary>市场情绪信号：2025-12-03 -27.31% 大跌（怎么用）</summary>
+      <p>
+        StockAnalysis 历史行情显示 2025-12-03 当日跌幅约 <b>-27.31%</b>。<sup><a href="#fn6">[6]</a></sup>
+        手册化用法：把“大跌原因”转成要验证的清单（利润率、成本、投入、hyperscaler 透明度），并观察 2/25 是否给出更清晰答案。
+      </p>
+    </details>
+
+    <h4 id="sec-9-3">9.3 涨价周期跟踪：供给—定价—客户行为三条线</h4>
+    <p class="mini">
+      目的：把“存储涨价/供给紧”从宏观新闻，变成季度可复盘的 <b>三条跟踪线</b>。每条线都给出“数据来源”和“异常信号”。
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:18%">跟踪线</th>
+          <th style="width:32%">你要盯什么</th>
+          <th style="width:30%">异常信号（预警）</th>
+          <th style="width:20%">数据来源</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>供给线</b></td>
+          <td>
+            • Inventory（存货）/ 备货节奏<br/>
+            • 交付周期（lead time）是否拉长<br/>
+            • 关键件采购策略（是否锁配额）
+          </td>
+          <td>
+            • 存货持续上升 + 现金流走弱（可能过度备货或需求转弱）<br/>
+            • 交期拉长导致收入确认延迟
+          </td>
+          <td>
+            • 10-Q / 财报附表<sup><a href="#fn1">[1]</a></sup><br/>
+            • 电话会 Q&A（供给/交期）<sup><a href="#fn20">[20]</a></sup>
+          </td>
+        </tr>
+
+        <tr>
+          <td><b>定价线</b></td>
+          <td>
+            • GM（总/产品/订阅）与其变动原因<br/>
+            • 折扣策略（是否“以价换量”）<br/>
+            • “成本传导滞后”管理层措辞
+          </td>
+          <td>
+            • GM 下滑且解释为“成本+折扣”叠加<br/>
+            • 管理层反复强调 commodity pricing 对利润压制
+          </td>
+          <td>
+            • Earnings PR/Prepared remarks<sup><a href="#fn1">[1]</a></sup><sup><a href="#fn2">[2]</a></sup><br/>
+            • 渠道访谈（折扣强度）
+          </td>
+        </tr>
+
+        <tr>
+          <td><b>客户行为线</b></td>
+          <td>
+            • “拉货/提前采购” vs “延迟/降规”<br/>
+            • 刚性场景（AI/关键业务）是否仍扩容<br/>
+            • 预算桶迁移：热数据留本地、冷数据上云？
+          </td>
+          <td>
+            • RPO/订单动能放缓（需求被价格/宏观伤到）<br/>
+            • 订阅续费/扩容走弱（客户开始收缩）
+          </td>
+          <td>
+            • RPO/ARR<sup><a href="#fn1">[1]</a></sup><br/>
+            • 终端客户访谈/案例（非公开也可）
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <b>手册提示：</b>“顺价能力”不是看单次涨价，而是看：<b>在成本上行的同时，毛利能否稳定</b> + <b>需求是否保持</b> + <b>交付是否更稳</b>。
+      这三者同时成立，才是高质量的“价格权力”。
+    </div>
+
+    <h4 id="sec-9-4">9.4 财报解读模板：如何验证“涨价→顺价”与 FY27 指引</h4>
+
+    <p class="mini">
+      这页是给 2026-02-25（FY26 Q4 + FY26 全年）以及后续每次财报复用的。<sup><a href="#fn5">[5]</a></sup>
+      逻辑：<b>Q4 数字本身往往已被指引“钉住”</b>，真正决定估值的是 <b>FY27 初始指引 + 成本/再投资口径 + hyperscaler/AI 可复制性</b>。
+    </p>
+
+    <h4>9.4.1 开会前：把“市场已知”写清楚（避免被情绪带走）</h4>
+    <ul>
+      <li><b>公司已给出 Q4FY26 指引：</b>Revenue $1.02–$1.04B；Non‑GAAP Op Income $220–$230M。<sup><a href="#fn1">[1]</a></sup></li>
+      <li><b>因此：</b>除非明显高于指引上沿，否则“Q4 beat”很可能不构成核心驱动；更重要的是 FY27。</li>
+      <li><b>写下你的核心假设：</b>（a）NAND/SSD 成本压力是否持续？（b）能否传导？（c）需求是否被抑制？（d）竞争是否用折扣反击？</li>
+    </ul>
+
+    <h4>9.4.2 电话会当场要“逼问出答案”的 8 个问题（建议逐条记录）</h4>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:26%">问题</th>
+          <th style="width:24%">你想听到的答案特征</th>
+          <th style="width:24%">警惕的答案特征</th>
+          <th style="width:26%">对应到哪条财报指标</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1) NAND/企业SSD 成本：上行持续多久？</td>
+          <td>给区间与节奏；有对冲/结构策略</td>
+          <td>“不确定/很难预测”且措辞升级</td>
+          <td>GM 指引、产品毛利变化</td>
+        </tr>
+        <tr>
+          <td>2) 传导机制：涨价能否/多快传到客户？</td>
+          <td>明确“动态定价/合同条款/滞后期”</td>
+          <td>强调“竞争激烈/折扣上升”</td>
+          <td>GM、折扣/产品组合</td>
+        </tr>
+        <tr>
+          <td>3) 交付与配额：供给是否成为约束？</td>
+          <td>交期稳定；供给可获得</td>
+          <td>交期拉长、确认延迟</td>
+          <td>收入节奏、RPO 释放</td>
+        </tr>
+        <tr>
+          <td>4) 存货策略：为什么备这么多？覆盖几个月？</td>
+          <td>明确覆盖期；有回落路径</td>
+          <td>模糊；存货“继续增加”</td>
+          <td>Inventory、CFO/FCF</td>
+        </tr>
+        <tr>
+          <td>5) 需求：是否出现“拉货/提前采购”？</td>
+          <td>承认但可控；剔除后仍健康</td>
+          <td>需求被透支、未来走弱</td>
+          <td>RPO、下季指引</td>
+        </tr>
+        <tr>
+          <td>6) FY27 再投资强度：利润率会不会被压？</td>
+          <td>投入有边界；利润率路径清晰</td>
+          <td>投入“显著增加”但无量化边界</td>
+          <td>FY27 Op Margin 指引</td>
+        </tr>
+        <tr>
+          <td>7) hyperscaler：从单点突破到可复制？</td>
+          <td>给“下一客户/验证阶段”信号</td>
+          <td>强调波动/保密，缺乏可追踪信号</td>
+          <td>产品收入结构、GM</td>
+        </tr>
+        <tr>
+          <td>8) 竞争：折扣是否升温？哪类对手最激进？</td>
+          <td>折扣可控；强调价值/交付</td>
+          <td>“价格战”苗头</td>
+          <td>GM、订单节奏</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>9.4.3 会后 30 分钟复盘模板（把结论写成可追踪假设）</h4>
+    <ol>
+      <li><b>把管理层表述翻译成 3 个可验证句子：</b>例如“Q2 开始成本压力缓解”“传导滞后 1 个季度”“供给不再约束”。</li>
+      <li><b>把这 3 句话映射到 3 个指标：</b>GM、Inventory/FCF、RPO/指引。</li>
+      <li><b>给出情景标签：</b><span class="badge b-good">Bull</span> / <span class="badge b-info">Base</span> / <span class="badge b-bad">Bear</span>（只要能复盘，不求完美）。</li>
+    </ol>
+
+    <details>
+      <summary>情景化口径（写进投研纪要用）</summary>
+      <ul>
+        <li><span class="badge b-good">Bull：</span>FY27 增速维持 15%+ 且利润率不塌；成本传导清晰；hyperscaler 进入可复制阶段。</li>
+        <li><span class="badge b-info">Base：</span>FY27 增速正常但利润率小幅承压（再投资）；成本传导有滞后但可控。</li>
+        <li><span class="badge b-bad">Bear：</span>FY27 指引偏保守 + 成本压力/折扣加大；RPO 放缓或交付受限；hyperscaler 不确定性上升。</li>
+      </ul>
+    </details>
+
+  </section>
+
+  <!-- 10 -->
+  <section id="sec-10">
+    <h2>10) 尽调清单：管理层/渠道/客户要问的问题（可直接复制到尽调纪要）</h2>
+
+    <h4>10.1 管理层（公司层）</h4>
+    <ul>
+      <li><b>hyperscaler 业务</b>：收入确认、毛利结构、波动性、可复制性（第二个客户的时间表与信号）。<sup><a href="#fn2">[2]</a></sup></li>
+      <li><b>AI 侧产品</b>：FlashBlade//EXA 的真实客户部署、性能与 TCO（最好给可披露的案例与对比）。<sup><a href="#fn9">[9]</a></sup></li>
+      <li><b>订阅化路径</b>：订阅占比从 45% 往上走的抓手是什么（Evergreen//One、软件订阅、云侧产品、Portworx 等）。<sup><a href="#fn1">[1]</a></sup></li>
+      <li><b>FY27 再投资</b>：投入重点（研发/销售/渠道/生态），预期对利润率的影响区间。<sup><a href="#fn2">[2]</a></sup></li>
+      <li><b>成本压力</b>：NAND/供应链怎么对冲（定价、产品结构、DFM 迭代、采购策略）。<sup><a href="#fn2">[2]</a></sup></li>
+      <li><b>SBC</b>：长期目标区间（收入占比/稀释率）；回购计划是否覆盖稀释。<sup><a href="#fn12">[12]</a></sup><sup><a href="#fn13">[13]</a></sup></li>
+    </ul>
+
+    <h4>10.2 渠道/集成商/竞品销售（外部视角）</h4>
+    <ul>
+      <li>Pure 的赢单点：性能、运维、省电/密度、订阅升级？哪个最常见？</li>
+      <li>丢单点：价格、生态、既有厂商锁定、云优先？</li>
+      <li>AI 场景真实采购：谁在拿预算（Pure/传统/新锐/云）？典型架构怎么选？</li>
+    </ul>
+
+    <h4>10.3 终端客户（最好问“痛点/替代方案/成本”而不是满意度）</h4>
+    <ul>
+      <li>买之前的最大痛点是什么（性能/稳定性/运维/升级停机/成本）？</li>
+      <li>替代方案是谁（Dell/NetApp/WEKA/VAST/直接上云）？最后为什么选 Pure？</li>
+      <li>上了之后，扩容/升级是否真的“更省事”？有没有隐藏成本（培训、生态、兼容）？</li>
+      <li>如果要换走 Pure，最大障碍是什么（数据迁移/停机/合规/团队能力）？</li>
+    </ul>
+
+    <h4 id="sec-10-4">10.4 涨价/供给紧尽调模块：把“顺价能力”问到可验证</h4>
+    <p class="mini">
+      目标：把“感觉上顺价/更容易拿货”转成能在未来两季被证伪/证实的答案。建议每次尽调都带着这页。
+    </p>
+
+    <div class="two-col">
+      <div class="card">
+        <h3>管理层/CFO（供应链 & 定价）</h3>
+        <ul>
+          <li><b>采购与供给：</b>关键件（NAND/SSD/控制器等）是否有长期协议/配额？覆盖周期多长？</li>
+          <li><b>备货策略：</b>当前存货对应多少个月出货？“目标库存区间”是什么？什么条件触发降库存？</li>
+          <li><b>关税/地缘：</b>是否因关税/不确定性提前采购？若政策变化，存货会不会反向减值？</li>
+          <li><b>成本传导：</b>动态定价机制是什么？平均滞后期多久？哪些合同/客户能 pass-through，哪些不能？</li>
+          <li><b>折扣纪律：</b>为守住份额会不会牺牲毛利？内部是否有 GM bottom line？</li>
+          <li><b>DirectFlash 的“经济性”：</b>DFM 在成本上行周期里能对冲多少？有哪些可量化指标（每可用TB成本/能耗）？<sup><a href="#fn11">[11]</a></sup></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>渠道/集成商/竞品销售（市场真实温度）</h3>
+        <ul>
+          <li><b>交期：</b>Pure vs Dell/NetApp/HPE 的交付周期差异是否扩大？客户是否因交期改变选择？</li>
+          <li><b>折扣：</b>最近一个季度折扣是上升还是下降？哪个对手最激进？</li>
+          <li><b>客户行为：</b>是否出现“提前采购（pull-in）”？如果有，集中在哪些行业/工作负载？</li>
+          <li><b>替代路径：</b>成本上行下，客户是否更倾向把冷数据迁到云（S3/Blob）？热数据是否仍买高性能阵列？</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <h3>终端客户（必须问到“钱”和“时间”）</h3>
+      <ul>
+        <li><b>涨价接受度：</b>最近一次采购是否遇到涨价？涨价幅度怎么谈下来的？（折扣/合同期/换成交付优先级？）</li>
+        <li><b>为什么不推迟：</b>如果没推迟，是因为哪个刚性指标（SLA/上线时间/GPU 利用率/合规）？</li>
+        <li><b>替代方案：</b>是否评估过上云/竞品？最终阻碍是什么（性能、交期、迁移风险、团队运维）？</li>
+        <li><b>预算桶变化：</b>存储预算是否从“冷数据/备份”转向“热数据/AI 生产系统”？</li>
+      </ul>
+
+      <div class="sticky-note" style="margin-top:10px;">
+        <b>一句话：</b>如果客户说“我接受涨价”，一定追问：<br/>
+        ① 你为此换到了什么（更快交付/更高SLA/更少运维）？<br/>
+        ② 你放弃了什么（推迟项目/降规格/迁冷到云）？<br/>
+        只有把“交换条件”问清楚，才能判断这是不是 Pure 的真实定价权。
+      </div>
+    </div>
+
+  </section>
+
+  <!-- 11 -->
+  <section id="sec-11">
+    <h2>11) 附录：术语表 + 计算口径 + 来源</h2>
+
+    <h4>11.1 术语表（手册版）</h4>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:20%">术语</th>
+          <th>通俗解释</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="mono">AFA</td><td>All‑Flash Array，全闪存阵列：用闪存做主要介质的企业存储系统。</td></tr>
+        <tr><td class="mono">Latency</td><td>延迟：请求数据到拿到数据的等待时间；AI/数据库对延迟特别敏感（尤其 p99）。</td></tr>
+        <tr><td class="mono">Throughput</td><td>吞吐：单位时间能读写多少数据（GB/s、TB/s）。训练“喂数据”高度依赖吞吐。</td></tr>
+        <tr><td class="mono">IOPS</td><td>每秒 I/O 次数：RAG/向量检索/小文件场景常看 IOPS 与抖动。</td></tr>
+        <tr><td class="mono">RAG</td><td>检索增强生成：模型回答前先检索外部知识库，因此会带来更多数据访问。</td></tr>
+        <tr><td class="mono">向量库</td><td>相似度检索数据库；底层仍需要存储持久化（对象/文件/块）。</td></tr>
+        <tr><td class="mono">Token</td><td>模型处理的“最小文本单位”；token 增加常意味着更多请求、更长上下文与更高检索频率。</td></tr>
+        <tr><td class="mono">Agent</td><td>一次请求变多步骤工作流，会频繁读写数据与记录审计日志。</td></tr>
+        <tr><td class="mono">ARR</td><td>Annual Recurring Revenue：订阅年经常性收入，衡量稳定可持续收入。</td></tr>
+        <tr><td class="mono">RPO</td><td>Remaining Performance Obligations：已签合同未来要履约的金额，收入可见性指标。</td></tr>
+        <tr><td class="mono">TCV</td><td>Total Contract Value：合同总价值，常用于观察 STaaS 签约动能。</td></tr>
+        <tr><td class="mono">SBC</td><td>Stock‑Based Compensation：股权激励费用，会稀释股东，是 GAAP 与 Non‑GAAP 差异核心来源之一。</td></tr>
+        <tr><td class="mono">NAND</td><td>闪存存储的核心半导体介质；其价格波动会传导到企业级 SSD 与全闪存阵列成本。</td></tr>
+        <tr><td class="mono">Enterprise SSD</td><td>企业级固态硬盘：面向数据中心，强调耐久与一致性能；价格上行会影响存储阵列成本。</td></tr>
+        <tr><td class="mono">顺价 / Pass-through</td><td>把上游成本上升“传导”给客户（通过提价、减少折扣或合同条款），以稳定毛利。</td></tr>
+        <tr><td class="mono">Discounting</td><td>折扣强度：竞争加剧时常用“以价换量”，会压毛利；需结合 GM 与订单节奏判断。</td></tr>
+        <tr><td class="mono">Lead time</td><td>交付周期：从下单到交付的时间；供给紧时 lead time 拉长会影响客户选择与收入确认节奏。</td></tr>
+        <tr><td class="mono">Inventory build</td><td>备货/建库存：为锁供给或应对不确定性提前采购；利于交付但会占用现金并带来过时风险。</td></tr>
+        <tr><td class="mono">Pull-in</td><td>拉货/提前采购：客户因涨价或供给担忧提前下单，可能“透支”未来需求，导致后续季度波动。</td></tr>
+        <tr><td class="mono">MCP</td><td>Model Context Protocol：让 AI 助手/Agent 与外部工具安全集成的协议/接口体系。</td></tr>
+      </tbody>
+    </table>
+
+    <h4>11.2 计算口径（避免不同网站口径不一致）</h4>
+    <ul>
+      <li><b>P/S（粗算）</b>：StockAnalysis 市值（2026-02-10）/ 公司 FY26 收入指引中值。<sup><a href="#fn3">[3]</a></sup><sup><a href="#fn1">[1]</a></sup></li>
+      <li><b>订阅占比</b>：Q3 订阅服务收入 / 总营收（约 45%），以公司披露为准。<sup><a href="#fn1">[1]</a></sup></li>
+      <li><b>SBC 规模</b>：以 SEC 10‑Q 披露的当季 SBC 分项合计为锚点。<sup><a href="#fn12">[12]</a></sup></li>
+    </ul>
+
+    <h4>11.3 来源（按重要性排序，建议抽查）</h4>
+    <ol class="footnotes">
+      <li id="fn1">Pure Storage：FY2026 Q3 Earnings Press Release（PDF，含关键财务数据与指引）：
+        <a href="https://s21.q4cdn.com/687136699/files/doc_financials/2026/q3/Pure-Storage-Q3FY26-Earnings-Press-Release.pdf">link</a>
+      </li>
+      <li id="fn2">Pure Storage：FY2026 Q3 Prepared Remarks（PDF，含 hyperscaler 出货、订阅占比、客户数等管理层口径）：
+        <a href="https://s21.q4cdn.com/687136699/files/doc_financials/2026/q3/Q3FY26-Prepared-Remarks.pdf">link</a>
+      </li>
+      <li id="fn3">StockAnalysis：PSTG 市值与股价快照（2026-02-10）：
+        <a href="https://stockanalysis.com/stocks/pstg/market-cap/">link</a>
+      </li>
+      <li id="fn4">MarketBeat：分析师目标价聚合（样本量与口径见页面说明）：
+        <a href="https://www.marketbeat.com/stocks/NYSE/PSTG/forecast/">link</a>
+      </li>
+      <li id="fn5">Pure Storage：公告 FY2026 Q4 & 全年电话会日期（2026-02-25 14:00 PT）：
+        <a href="https://www.purestorage.com/company/newsroom/press-releases/pure-storage-announces-conference-call-info-q4fy26-results.html">link</a>
+      </li>
+      <li id="fn6">StockAnalysis：PSTG 历史行情（含 2025-12-03 -27.31% 大跌）：
+        <a href="https://stockanalysis.com/stocks/pstg/history/">link</a>
+      </li>
+      <li id="fn7">IDC：外部企业存储系统市场简报（AFA +17.6% 等摘要）：
+        <a href="https://my.idc.com/getdoc.jsp?containerId=prUS54034425">link</a>
+      </li>
+      <li id="fn8">Blocks & Files：转述 IDC Q3 2025 外部企业存储系统数据（份额/结构分化）：
+        <a href="https://blocksandfiles.com/2025/12/12/idc-storage-tracker-shows-pure-and-huawei-growing-fastest/">link</a>
+      </li>
+      <li id="fn9">Pure Storage：FlashBlade//EXA 新闻稿（&gt;10TB/s 读性能“预期/测试口径”）：
+        <a href="https://www.purestorage.com/company/newsroom/press-releases/pure-storage-introduces-flashblade-exa.html">link</a>
+      </li>
+      <li id="fn10">Pure Storage：Enterprise Data Cloud / AI Copilot（MCP server & client 描述）：
+        <a href="https://investor.purestorage.com/news-and-events/press-releases/press-release-details/2025/Pure-Storages-Enterprise-Data-Cloud-Unifies-Data-to-Give-Businesses-Greater-Control-of-their-AI-Initiatives/default.aspx">link</a>
+      </li>
+      <li id="fn11">Pure Storage：DirectFlash 介绍（密度 2–3x、能耗 39–54% 为厂商披露口径）：
+        <a href="https://www.purestorage.com/knowledge/what-is-directflash-and-how-does-it-work.html">link</a>
+      </li>
+      <li id="fn12">SEC：PSTG 10‑Q（截至 2025-11-02；披露 SBC 费用分项与总额）：
+        <a href="https://www.sec.gov/Archives/edgar/data/1474432/000147443225000065/pstg-20251102.htm">link</a>
+      </li>
+      <li id="fn13">Pure Storage：新增 $400M 回购授权（2025-12-10）：
+        <a href="https://investor.purestorage.com/news-and-events/press-releases/press-release-details/2025/Pure-Storage-Announces-400-Million-Share-Repurchase-Authorization/default.aspx">link</a>
+      </li>
+      <li id="fn14">GuruFocus：PSTG Forward P/E（示例日期 2026-01-29，口径随时间变化）：
+        <a href="https://www.gurufocus.com/term/forward-pe-ratio/PSTG">link</a>
+      </li>
+      <li id="fn15">GuruFocus：DELL Forward P/E（示例日期 2026-02-07）：
+        <a href="https://www.gurufocus.com/term/forward-pe-ratio/DELL">link</a>
+      </li>
+      <li id="fn16">GuruFocus：NTAP Forward P/E（示例日期 2026-01-21）：
+        <a href="https://www.gurufocus.com/term/forward-pe-ratio/NAS%3ANTAP">link</a>
+      </li>
+      <li id="fn17">GuruFocus：HPE Forward P/E（示例日期 2026-02-01）：
+        <a href="https://www.gurufocus.com/term/forward-pe-ratio/HPE">link</a>
+      </li>
+
+      <li id="fn18">TrendForce：NAND Flash/企业级 SSD 价格上行预期（2026-02-02，调查/预测口径，供理解成本周期）： 
+        <a href="https://www.trendforce.com/presscenter/news/20260202-12911.html">link</a>
+      </li>
+      <li id="fn19">Pure Storage：FY2026 Q2 财报新闻稿（含资产负债表与存货等项目）： 
+        <a href="https://investor.purestorage.com/news-and-events/press-releases/press-release-details/2025/Pure-Storage-Announces-Second-Quarter-Fiscal-2026-Financial-Results/default.aspx">link</a>
+      </li>
+      <li id="fn20">Investing.com：Pure Storage FY26 Q3 Earnings Call Transcript（含对存货、关税/供应链与定价相关问答的转述/记录，使用时注意为媒体整理口径）： 
+        <a href="https://www.investing.com/news/transcripts/earnings-call-transcript-pure-storage-meets-q3-earnings-stock-climbs-93CH-4387246">link</a>
+      </li>
+
+    
+      <li id="fn21">FinancialContent：PSTG Historical Prices（可选择 Year/Month/Range，包含 2020-03-18 低点 $7.93、2025-12-03 -27.31%、2026-02-11 收盘 $76.05 等）： 
+        <a href="https://markets.financialcontent.com/stocks/quote/historical?Symbol=321%3A29263292">link</a>
+      </li>
+      <li id="fn22">Investopedia：Q3 FY2025 财报后股价大涨（订阅相关收入与指引变化等），用于回看“订阅化→估值重估”的典型案例： 
+        <a href="https://www.investopedia.com/pure-storage-stock-soars-on-higher-subscription-revenue-8755105">link</a>
+      </li>
+      <li id="fn23">Barron's：报道 PSTG 单日大涨约 29% 并创纪录（日内涨幅），以及与超大规模客户/Meta 叙事相关的市场解读： 
+        <a href="https://www.barrons.com/articles/pure-storage-stock-meta-deal-c960bb7a">link</a>
+      </li>
+      <li id="fn24">Barron's：报道 PSTG 在财报后单日大跌约 27.3%（市场关注盈利与毛利/成本因素），用于回看“利好/利空分歧在电话会中释放”的案例： 
+        <a href="https://www.barrons.com/articles/pure-storage-stock-price-earnings-dc2db6f8">link</a>
+      </li>
+      <li id="fn25">Pure Storage Investor Relations：Stock Information（52-week range 等基础行情口径）： 
+        <a href="https://investor.purestorage.com/stock-information/default.aspx">link</a>
+      </li>
+</ol>
+
+    <div class="divider"></div>
+    <p class="small">
+      <b>免责声明：</b>本手册仅用于研究与讨论，不构成任何投资建议。文中“目标价/估值倍数/一致预期”来自公开资料或聚合平台，口径随时间变化；请结合最新公告、财报与合规流程独立判断。
+    </p>
+  </section>
+
+    <section id="sec-12">
+      <h2>12. 2020至今「5倍+」之路复盘：催化与股价反应</h2>
+
+      <p class="muted">
+        这一节的目的不是“讲故事”，而是把 <b>股价大幅波动</b> 拆成可复用的研究模板：<b>发生了什么 → 市场在定价什么 → 后续用哪些指标验证</b>。
+        你可以把它当成“事件驱动研究的字典”，用来准备下一次财报（尤其 FY26 Q4 与 FY27 指引）。
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>12.1 复盘结论：这条「5倍+」主要靠三次“再定价”（Re-rating）</h3>
+          <ul class="list">
+            <li><b>从“卖硬件盒子”到“订阅+平台”</b>：收入可预测性上升（ARR/RPO 变成核心指标）→ 估值更像软件。</li>
+            <li><b>从“传统存储升级周期”到“AI 数据基础设施”</b>：AI 训练/推理/RAG/Agent 把“高吞吐+低延迟+高可靠”变成刚需 → 高端存储预算上升。</li>
+            <li><b>从“企业客户”到“超大规模客户/技术授权”</b>：一旦进入 hyperscaler 设计验证（design win），TAM 与利润结构的想象空间都会被市场重估。</li>
+          </ul>
+
+          <div class="callout good">
+            <b>复盘要点：</b>真正的“5倍”通常不是靠某一次财报，而是靠多次<strong>“预期上修”</strong>叠加（收入上修、利润率上修、商业模式上修、TAM 上修）。
+            你要追踪的是：每一次大涨背后，究竟是哪一条“上修”在发生。
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>12.2 关键价格锚点（用于建立“记忆坐标”）</h3>
+          <div class="kpi">
+            <div class="item">
+              <div class="k">2020-01-02 收盘</div>
+              <div class="v">$17.80</div>
+              <div class="s muted">疫情前基准点（Close）<sup><a href="#fn21">[21]</a></sup></div>
+            </div>
+            <div class="item">
+              <div class="k">2020-03-18 极端低点</div>
+              <div class="v">$7.93</div>
+              <div class="s muted">疫情恐慌期（Low），当日收盘 $8.76<sup><a href="#fn21">[21]</a></sup></div>
+            </div>
+            <div class="item">
+              <div class="k">阶段高点（52周高）</div>
+              <div class="v">$100.59</div>
+              <div class="s muted">2025 年 11 月附近区间高位（52-week high）<sup><a href="#fn25">[25]</a></sup></div>
+            </div>
+            <div class="item">
+              <div class="k">2025-12-03 单日暴跌</div>
+              <div class="v">-27.31%</div>
+              <div class="s muted">收盘 $68.85（财报/电话会后预期重定价）<sup><a href="#fn21">[21]</a></sup></div>
+            </div>
+          </div>
+
+          <div class="callout warn" style="margin-top:10px">
+            <b>口径提醒：</b>“5倍+”可按两种口径看：<br/>
+            ① 从 2020 年初 $17.80 到阶段高点 $100.59 ≈ <b>5.65x</b><br/>
+            ② 从疫情极端低点 $7.93 到阶段高点 $100.59 ≈ <b>12.68x</b><br/>
+            两个口径对应两类复盘：<b>公司α</b>（基本面） vs <b>市场β</b>（流动性/风险偏好）。
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>12.3 一张图：2020→2026 的“叙事—业绩—估值”时间线（示意）</h3>
+        <p class="muted small">下图是<strong>研究用结构图</strong>（不是严格按比例的价格曲线），用于把“事件 → 指标变化 → 估值反应”串起来。</p>
+
+        <svg viewBox="0 0 920 210" width="100%" height="210" role="img" aria-label="PSTG 2020-2026 timeline">
+          <defs>
+            <style>
+              .tLine{stroke:rgba(255,255,255,.25); stroke-width:2}
+              .node{fill:rgba(108,168,255,.9); stroke:rgba(255,255,255,.5); stroke-width:1}
+              .node2{fill:rgba(255,193,77,.9); stroke:rgba(255,255,255,.5); stroke-width:1}
+              .node3{fill:rgba(255,99,132,.85); stroke:rgba(255,255,255,.5); stroke-width:1}
+              .lbl{font: 12px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto; fill: rgba(255,255,255,.92)}
+              .sub{font: 11px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto; fill: rgba(255,255,255,.70)}
+            </style>
+          </defs>
+
+          <!-- baseline -->
+          <line x1="40" y1="120" x2="880" y2="120" class="tLine"/>
+
+          <!-- nodes -->
+          <circle cx="70" cy="120" r="9" class="node3"/>
+          <text x="55" y="150" class="lbl">2020 Q1</text>
+          <text x="50" y="168" class="sub">疫情冲击/β主导</text>
+
+          <circle cx="220" cy="120" r="9" class="node"/>
+          <text x="200" y="150" class="lbl">2021</text>
+          <text x="165" y="168" class="sub">订阅化叙事加强</text>
+
+          <circle cx="360" cy="120" r="9" class="node3"/>
+          <text x="336" y="150" class="lbl">2022</text>
+          <text x="300" y="168" class="sub">紧缩/IT放缓压力</text>
+
+          <circle cx="500" cy="120" r="9" class="node2"/>
+          <text x="470" y="150" class="lbl">2023-2024</text>
+          <text x="440" y="168" class="sub">利润率拐点 + AI叙事</text>
+
+          <circle cx="650" cy="120" r="9" class="node"/>
+          <text x="632" y="150" class="lbl">2025</text>
+          <text x="600" y="168" class="sub">hyperscaler 设计胜利</text>
+
+          <circle cx="770" cy="120" r="9" class="node3"/>
+          <text x="748" y="150" class="lbl">2025 Q4</text>
+          <text x="712" y="168" class="sub">毛利/成本担忧重估</text>
+
+          <circle cx="860" cy="120" r="9" class="node2"/>
+          <text x="842" y="150" class="lbl">2026</text>
+          <text x="810" y="168" class="sub">等待FY27指引验证</text>
+
+          <!-- annotations -->
+          <text x="40" y="45" class="lbl">“5倍+”的核心不是时间，而是三条曲线：</text>
+          <text x="40" y="68" class="sub">① 收入质量（ARR/RPO/订阅占比） ② 盈利质量（毛利/经营利润/FCF） ③ TAM叙事（AI + hyperscaler）</text>
+          <text x="40" y="92" class="sub">当这三条曲线同时向上时，股价更容易进入“估值重估”阶段。</text>
+        </svg>
+      </div>
+
+      <div class="card">
+        <h3>12.4 关键大涨/大跌日：发生了什么？市场在定价什么？怎么验证？</h3>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:110px">日期</th>
+              <th style="width:95px">涨跌幅</th>
+              <th style="width:110px">更像哪类驱动</th>
+              <th>当时可能的“主要催化/叙事”</th>
+              <th style="width:280px">后续验证点（把叙事落到指标）</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2020-03-16</td>
+              <td class="bad">-23.72%</td>
+              <td>市场β</td>
+              <td>疫情恐慌+流动性冲击，成长股全面杀估值<sup><a href="#fn21">[21]</a></sup></td>
+              <td class="muted">关注：企业IT支出是否暂停/延迟，订单节奏、应收与库存变化。</td>
+            </tr>
+            <tr>
+              <td>2020-03-19</td>
+              <td class="good">+16.55%</td>
+              <td>市场β</td>
+              <td>政策与风险偏好反弹，市场“先修复折价”<sup><a href="#fn21">[21]</a></sup></td>
+              <td class="muted">这类反弹不等于公司基本面反转；验证要看随后的业绩/指引。</td>
+            </tr>
+            <tr>
+              <td>2020-03-24</td>
+              <td class="good">+14.34%</td>
+              <td>市场β</td>
+              <td>市场连续反弹（高β科技股跟随）<sup><a href="#fn21">[21]</a></sup></td>
+              <td class="muted">同上：不要把β行情误当成“产品/订单爆发”。</td>
+            </tr>
+            <tr>
+              <td>2020-03-26</td>
+              <td class="good">+11.55%</td>
+              <td>市场β</td>
+              <td>市场继续修复，股价回到“风险中性”区间<sup><a href="#fn21">[21]</a></sup></td>
+              <td class="muted">此后进入“公司α主导”阶段：看订阅、毛利、现金流的趋势。</td>
+            </tr>
+
+            <tr>
+              <td>2024-12<br/><span class="muted small">（Q3 FY25）</span></td>
+              <td class="good">&gt; +20%</td>
+              <td>公司α</td>
+              <td>财报后大涨：订阅相关收入/指引强化，市场重估“订阅化质量”<sup><a href="#fn22">[22]</a></sup></td>
+              <td class="muted">
+                ① ARR、RPO 是否继续高于收入增速<br/>
+                ② Non-GAAP 经营利润率是否上台阶<br/>
+                ③ 指引上调是否可持续（不是一次性）
+              </td>
+            </tr>
+
+            <tr>
+              <td>2025-08~09<br/><span class="muted small">（财报+叙事）</span></td>
+              <td class="good">~ +29%</td>
+              <td>公司α</td>
+              <td>“超大规模客户/Meta 叙事”+业绩推动的<strong>单日大涨</strong>（创纪录涨幅）<sup><a href="#fn23">[23]</a></sup></td>
+              <td class="muted">
+                ① hyperscaler 出货/设计验证：是不是一次性订单？<br/>
+                ② 授权/合作是否可复制到第二家、第三家<br/>
+                ③ 毛利是否受 NAND 成本侵蚀
+              </td>
+            </tr>
+
+            <tr>
+              <td>2025-12-02</td>
+              <td class="good">+6.97%</td>
+              <td>公司α</td>
+              <td>财报窗口期的正反馈（收盘 $94.72）<sup><a href="#fn21">[21]</a></sup></td>
+              <td class="muted">看电话会口径是否“把利好讲完整”——很多反转发生在电话会细节。</td>
+            </tr>
+
+            <tr>
+              <td>2025-12-03</td>
+              <td class="bad">-27.31%</td>
+              <td>公司α</td>
+              <td>财报后预期重定价：市场担忧盈利/毛利与成本（NAND）压力，单日大跌<sup><a href="#fn21">[21]</a></sup><sup><a href="#fn24">[24]</a></sup></td>
+              <td class="muted">
+                ① 产品毛利率 vs 订阅毛利率：谁在拖累？<br/>
+                ② 存货是否上升、是否存在成本滞后/跌价风险（见 §7.4）<br/>
+                ③ FY27 指引：收入能否维持 15%+、利润率能否继续改善
+              </td>
+            </tr>
+
+            <tr>
+              <td>2026-02-06</td>
+              <td class="good">+10.44%</td>
+              <td>混合</td>
+              <td>财报前后“预期摆动”与AI基础设施情绪共振（收盘 $70.99）<sup><a href="#fn21">[21]</a></sup></td>
+              <td class="muted">这类行情常是“预期交易”：关键看 FY26 Q4/FY27 指引能否兑现或反杀。</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout" style="margin-top:12px">
+          <b>怎么用这张表？</b><br/>
+          • 看到“公司α驱动的大涨/大跌”，不要停留在新闻标题，要立刻问：<b>它改写了哪一个模型参数？</b><br/>
+          • 如果只是“市场β驱动”，复盘重点是：当β退潮时，公司α是否足够强，能把股价留在更高台阶。
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h3>12.5 复盘方法论：把“涨跌”变成“可复用的研究资产”</h3>
+          <ol class="list">
+            <li><b>先定筛选规则：</b>找出日涨跌幅 &ge; 10% 的交易日（或财报日 ±3 天）。</li>
+            <li><b>再定分类：</b>宏观β / 公司α（财报、产品、合作、行业政策、并购、诉讼等）。</li>
+            <li><b>用同一张“事件卡”记录：</b>事件 → 市场预期 → 实际披露 → 当天价格反应 → 未来验证点（见 §9.4 模板）。</li>
+            <li><b>映射到模型：</b>把事件翻译成 3 类可量化驱动：收入（量/价/结构）、利润率（毛利/费用率）、资本结构（SBC/回购/现金）。</li>
+            <li><b>做“催化库”：</b>长期更新：哪些指标最能触发重估？哪些“利好”只是一次性噪声？</li>
+          </ol>
+
+          <div class="callout warn">
+            <b>复盘常见错误：</b><br/>
+            ① 把“股价涨”当成“基本面好”；② 只抄新闻不追踪指标；③ 忽略估值位置（同样的利好在高估值时反而可能跌）。
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>12.6 把复盘映射到下一次财报：FY26 Q4 / FY27 指引该盯什么？</h3>
+
+          <p class="muted">从历史大涨/大跌日看，市场对 PSTG 的“再定价”通常围绕四个问题：</p>
+          <ul class="list">
+            <li><b>增长：</b>FY27 收入增速能否稳在 15%+？（尤其是订阅/ARR、RPO 的领先性）</li>
+            <li><b>AI/hyperscaler：</b>是否出现“第二个、第三个”超大规模客户信号？还是只有单一客户波动？</li>
+            <li><b>毛利与顺价：</b>NAND 涨价背景下，产品毛利率是否被压？公司能否“顺价/结构优化”对冲？（见 §7.4 与 §9.3）</li>
+            <li><b>盈利质量：</b>经营利润率是否继续上台阶？SBC 稀释是否被回购抵消？（见 §7）</li>
+          </ul>
+
+          <div class="callout good">
+            <b>事件博弈（学习用，不构成建议）：</b>如果你要“博弈财报”，更关键的不是猜 EPS，
+            而是提前写下两套剧本：<br/>
+            • <b>Upside 剧本：</b>指引上修 + hyperscaler 进展可复制 + 毛利稳住 → 估值重估<br/>
+            • <b>Downside 剧本：</b>指引保守 + 毛利受压 + 订单节奏波动 → 多重压缩<br/>
+            然后用仓位/止损/对冲去管理“剧本错误”的风险。
+          </div>
+
+          <p class="muted small">
+            <b>实操提醒：</b>“财报前买、财报后卖”并不天然占优。历史上 PSTG 也出现过“先涨后崩”（例如 2025-12-02/03），说明电话会细节与指引口径常常决定第二天的方向。<sup><a href="#fn21">[21]</a></sup>
+          </p>
+        </div>
+      </div>
+    </section>
+</div>
+
+<script>
+(function(){
+  function n(id){
+    const el = document.getElementById(id);
+    if(!el) return 0;
+    const v = (el.value ?? "").toString().trim();
+    if(v === "") return 0;
+    const x = Number(v);
+    return isFinite(x) ? x : 0;
+  }
+  function pct(id){ return n(id)/100.0; }
+
+  function fmt(x, d){
+    if(!isFinite(x)) return "—";
+    const dec = (d===undefined)?2:d;
+    return x.toLocaleString(undefined, {minimumFractionDigits: dec, maximumFractionDigits: dec});
+  }
+  function fmt0(x){ if(!isFinite(x)) return "—"; return x.toLocaleString(undefined,{maximumFractionDigits:0}); }
+  function set(id, text){
+    const el = document.getElementById(id);
+    if(el) el.textContent = text;
+  }
+
+  function recompute(){
+    // Quick valuation
+    const mktcap = n("m_mktcap"); // $B
+    const cash = n("m_cash"); // $B
+    const debt = n("m_debt"); // $B
+    const price = n("m_price"); // $
+    const shares = n("m_shares"); // M
+    const rev = n("m_rev"); // $B
+    const fcfm = pct("m_fcfm"); // %
+    const tps = n("m_tps");
+    const tpfcf = n("m_tpfcf");
+
+    const ev = mktcap + debt - cash; // $B
+    const ps = (rev>0) ? (mktcap/rev) : NaN;
+    const evs = (rev>0) ? (ev/rev) : NaN;
+
+    const fcf = rev * fcfm; // $B
+    const fcfy = (mktcap>0) ? (fcf/mktcap) : NaN;
+
+    const fcf_ps = (shares>0) ? (fcf*1000.0/shares) : NaN; // convert $B to $ per share using shares in M
+    // Implied
+    const imp_mktcap_ps = rev * tps; // $B
+    const imp_px_ps = (shares>0) ? (imp_mktcap_ps*1000.0/shares) : NaN;
+
+    const imp_px_pfcf = (isFinite(fcf_ps)) ? (fcf_ps*tpfcf) : NaN;
+
+    set("o_ev", "$" + fmt(ev,2) + "B");
+    set("o_ps", fmt(ps,2) + "x");
+    set("o_evs", fmt(evs,2) + "x");
+    set("o_fcf", "$" + fmt(fcf,2) + "B");
+    set("o_fcfy", fmt(fcfy*100,2) + "%");
+    set("o_fcfps", "$" + fmt(fcf_ps,2));
+    set("o_px_ps", "$" + fmt(imp_px_ps,2));
+    set("o_px_pfcf", "$" + fmt(imp_px_pfcf,2));
+
+    // Dilution / buyback
+    const begin = n("s_begin"); // M
+    const sbc = n("s_sbc"); // M
+    const bb = n("s_bb"); // $M
+    const bbpx = n("s_bbpx"); // $
+    const rep = (bbpx>0) ? (bb/bbpx) : NaN; // M shares repurchased if bb in $M and price in $
+    const end = begin + sbc - rep;
+    const delta = end - begin;
+    const delta_pct = (begin>0) ? (delta/begin) : NaN;
+
+    set("so_rep", fmt(rep,2) + "M");
+    set("so_end", fmt(end,2) + "M");
+    set("so_delta", fmt(delta,2) + "M");
+    set("so_delta_pct", fmt(delta_pct*100,2) + "%");
+  }
+
+  // bind
+  document.addEventListener("input", function(e){
+    if(e && e.target && e.target.tagName === "INPUT"){
+      recompute();
+    }
+  });
+  // initial
+  recompute();
+})();
+</script>
+
+</body>
+</html>
